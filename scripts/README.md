@@ -6,3 +6,4 @@
 4) Multiple commands are accepted. Ex: ***git_data_collector -log --after="date"***
 5) Date restriction added (currently only for stat)
 	ex: ***git_data_collector --before="date" --after="date"*** where **date** is in Git Bash format.
+6) Date format example: --after="YY-MM-DD" -> --after="2018-05-15"
