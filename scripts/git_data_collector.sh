@@ -11,6 +11,11 @@
 ###
 
 currentDir=$(pwd)
+cd ..
+echo "Checking whether your Repository is up to date or not."
+git pull
+cd "$currentDir"
+echo "Creating log files..."
 
 function formatData()
 {
