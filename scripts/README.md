@@ -1,3 +1,5 @@
+# Discontinued, use scripts_v2
+
 ## How to use the "git_data_collector.sh".
 
 1) Place the ***scripts*** folder to the same directory where you did ***git clone***.
