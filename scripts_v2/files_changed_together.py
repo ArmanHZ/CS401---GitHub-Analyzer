@@ -1,4 +1,3 @@
-import datetime
 
 
 LINE_SEPARATOR = '##############################'
