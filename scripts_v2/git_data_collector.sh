@@ -25,6 +25,14 @@ function formatData()
 	python format_data.py
 }
 
+function formatDataNoLog()
+{
+	git log --no-merges --name-only --pretty=format:"%H|%an|%cn|%cd|%s" > "$currentDir/FormattedDataNoMerges.txt" 2>&1
+	printf "\n" >> "$currentDir/FormattedDataNoMerges.txt"
+	cd "$currentDir"
+	python format_data.py "-nlog"
+}
+
 function formatDataDateRestriction()
 {
 	parameter=$1
@@ -45,7 +53,8 @@ if [ "$#" -eq 0 ]; then
 fi
 
 if [[ "$@" = "-h" ]]; then
-	echo "-log -> Generates log.txt file with commit history and commit notes."
+	echo "-log -> Generates commit history and commit notes."
+	echo "-nlog -> Generates commit history and commit notes without merges."
 	echo "--after="date" -> Shows the commits after the specified date. Date style is like Git Bash date."
 	echo "--before="date" -> Shows the commits before the specified date."
 	exit
@@ -61,6 +70,8 @@ if [[ "$#" != 0 ]] && [[ "$@" != "-h" ]]; then
 	do
 		if [ "$i" = "-log" ]; then
 			formatData
+		elif [ "$i" = "-nlog" ]; then
+			formatDataNoLog
 		elif [[ "$i" = *after* ]] || [[ "$i" = *before* ]]; then
 			dateString="${dateString} $i"
 		else
