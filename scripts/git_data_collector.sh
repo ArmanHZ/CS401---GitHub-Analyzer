@@ -32,6 +32,14 @@ function formatDataDateRestriction()
 	python format_data.py $parameter
 }
 
+function formatData()
+{
+	git log --name-only --pretty=format:"Ω%H|%an|%cn|%cd|%s" > "$currentDir/FormattedData.txt" 2>&1
+	cd "$currentDir"
+	python format_data.py
+}
+
+
 
 ###
 # Main body of script starts here
