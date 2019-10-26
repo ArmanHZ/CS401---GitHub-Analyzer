@@ -42,13 +42,6 @@ function formatDataDateRestriction()
 	python format_data.py $parameter
 }
 
-function nameStatusData()
-{
-	git log --name-status  > "$currentDir/nameStatusData.txt" 2>&1
-	printf "\n" >> "$currentDir/nameStatusData.txt"
-	cd "$currentDir"
-	python format_data.py
-}
 
 ###
 # Main body of script starts here
