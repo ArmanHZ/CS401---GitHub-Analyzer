@@ -71,6 +71,9 @@ def main():
     if any(x in str(sys.argv) for x in to_be_searched):
         file_name = "FormattedDataDateRestricted.txt"
         format_file(file_name)
+    elif "-nlog" in str(sys.argv):
+        file_name = "FormattedDataNoMerges.txt"
+        format_file(file_name)
     else:
         file_name = "FormattedData.txt"
         format_file(file_name)

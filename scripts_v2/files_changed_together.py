@@ -70,11 +70,13 @@ def month_as_number(month):
 
 
 def write_csv_format_to_file(csv_format):
-    with open('files_changed_together.csv', 'w', encoding='utf-8') as fp:
+    with open('files_changed_together.csv', 'a', encoding='utf-8') as fp:
         fp.write(csv_format)
 
 
 def main():
+    with open('files_changed_together.csv', 'w', encoding='utf-8') as fp:   # Just to reset the file
+        fp.close()
     read_csv_file('final_dump.txt')
 
 
