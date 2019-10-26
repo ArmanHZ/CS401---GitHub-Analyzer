@@ -38,7 +38,7 @@ class DataFormat:
         result_string = result_string[:-2]  # Remove the last ", "
         result_string += "\n"
         return result_string
-                        "Edited files name: " + self.edited_files
+                     
 
 
 """ End of DataFormat Class """
