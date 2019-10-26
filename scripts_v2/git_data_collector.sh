@@ -42,6 +42,13 @@ function formatDataDateRestriction()
 	python format_data.py $parameter
 }
 
+function statusOfFile()
+{
+	git log --name-status --no-merges --pretty=oneline > "$currentDir/nameAndStatus.txt" 2>&1
+	printf "\n" >> "$currentDir/nameAndStatus.txt"
+	cd "$currentDir"
+}
+
 
 ###
 # Main body of script starts here
