@@ -81,6 +81,8 @@ if [[ "$#" != 0 ]] && [[ "$@" != "-h" ]]; then
 			formatDataNoLog
 		elif [[ "$i" = *after* ]] || [[ "$i" = *before* ]]; then
 			dateString="${dateString} $i"
+		elif [ "$i" = "-stat" ]; then
+      statusOfFile
 		else
 			printf "Command not recognized.\nList of all the commands: git_data_collector -h\n"
 		fi
