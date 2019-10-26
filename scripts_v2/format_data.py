@@ -15,7 +15,7 @@ class DataFormat:
     commit_date = None
     commit_message = None
     edited_files = []
-    status =
+
 
     def reformat_data(self, information_part, changed_files_part):
         self.commit_hash = information_part[0]
@@ -38,7 +38,7 @@ class DataFormat:
         result_string = result_string[:-2]  # Remove the last ", "
         result_string += "\n"
         return result_string
-                     
+
 
 
 """ End of DataFormat Class """
