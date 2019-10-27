@@ -18,6 +18,8 @@ public class App extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         scene = new Scene(loadFXML("primary"));
+        String styleSheet = App.class.getResource("stylesheet.css").toExternalForm();
+        scene.getStylesheets().add(styleSheet);
         stage.setTitle("GitHub Data Visualizer");
         stage.setScene(scene);
         stage.show();
