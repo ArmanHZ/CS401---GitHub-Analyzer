@@ -44,7 +44,7 @@ function formatDataDateRestriction()
 
 function statusOfFile()
 {
-	git log --name-status --no-merges --pretty=oneline > "$currentDir/nameAndStatus.txt" 2>&1
+	git log --stat --no-merges --pretty=oneline > "$currentDir/nameAndStatus.txt" 2>&1
 	printf "\n" >> "$currentDir/nameAndStatus.txt"
 	cd "$currentDir"
 }
