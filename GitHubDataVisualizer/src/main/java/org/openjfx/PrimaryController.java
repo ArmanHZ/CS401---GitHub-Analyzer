@@ -223,6 +223,9 @@ public class PrimaryController {
         Tooltip tooltip = new Tooltip();
         tooltip.setText("Files: \n" + fileNames.get(row) + "\n" + fileNames.get(column) + "\nChanged together count: " + numChangedTogether);
         label.setTooltip(tooltip);
+        int red = numChangedTogether * 20;
+        int green = 255 - (numChangedTogether * 10);
+        label.setStyle("-fx-background-color: rgb(" + red + "," + green + ",0);");
         label.getStyleClass().add("matrixCells");
         label.setMinSize(20, 20);
         return label;

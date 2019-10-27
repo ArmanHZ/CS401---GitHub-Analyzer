@@ -35,7 +35,7 @@
               </yAxis>
             </BarChart>
          </content></Tab>
-    <Tab text="Untitled Tab 2">
+    <Tab text="Co-occurrence Matrix">
          <content>
             <ScrollPane fx:id="matrixPane" pannable="true" prefHeight="200.0" prefWidth="200.0">
                <padding>
