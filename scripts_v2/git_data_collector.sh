@@ -42,6 +42,13 @@ function formatDataDateRestriction()
 	python format_data.py $parameter
 }
 
+function statusOfFile()
+{
+	git log --stat --graph --decorate --no-merges --pretty=oneline --pretty='%H , %cd' > "$currentDir/stats.txt" 2>&1
+	printf "\n" >> "$currentDir/stats.txt"
+	cd "$currentDir"
+}
+
 
 ###
 # Main body of script starts here
@@ -74,6 +81,9 @@ if [[ "$#" != 0 ]] && [[ "$@" != "-h" ]]; then
 			formatDataNoLog
 		elif [[ "$i" = *after* ]] || [[ "$i" = *before* ]]; then
 			dateString="${dateString} $i"
+		elif [ "$i" = "-stat" ]; then
+      formatData
+      statusOfFile
 		else
 			printf "Command not recognized.\nList of all the commands: git_data_collector -h\n"
 		fi
