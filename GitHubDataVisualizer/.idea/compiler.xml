@@ -6,8 +6,9 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="MainModule" />
         <module name="mainModule" />
+        <module name="hellofx" />
+        <module name="MainModule" />
       </profile>
     </annotationProcessing>
   </component>

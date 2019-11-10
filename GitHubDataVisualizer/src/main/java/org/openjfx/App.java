@@ -14,6 +14,7 @@ import java.io.IOException;
 public class App extends Application {
 
     private static Scene scene;
+    static Stage stage;
 
     @Override
     public void start(Stage stage) throws IOException {
@@ -21,6 +22,7 @@ public class App extends Application {
         String styleSheet = App.class.getResource("stylesheet.css").toExternalForm();
         scene.getStylesheets().add(styleSheet);
         stage.setTitle("GitHub Data Visualizer");
+        App.stage = stage;
         stage.setScene(scene);
         stage.show();
     }

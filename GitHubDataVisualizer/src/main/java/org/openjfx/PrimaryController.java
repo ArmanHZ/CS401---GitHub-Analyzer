@@ -15,6 +15,8 @@ import javafx.scene.chart.BarChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 
 public class PrimaryController {
 
@@ -28,13 +30,22 @@ public class PrimaryController {
     private Tab chartTab;
 
     @FXML
-    private TextField commitCsvPath;
+    private TextField repoDirectory;
 
     @FXML
     private ScrollPane matrixPane;
 
     @FXML
     private BorderPane matrixBorderPane;
+
+    @FXML
+    private AnchorPane optionsLeftAnchor;
+
+    @FXML
+    private AnchorPane optionsRightAnchor;
+
+    @FXML
+    private Button generateButton;
 
 
 //    private TreeMap<String, String> treeMap = new TreeMap<>();
@@ -46,44 +57,53 @@ public class PrimaryController {
 
     private Map<String, Integer> commitTogetherCount = new HashMap<>();
 
-    // CSV button pressed
+
     @FXML
-    private void addDataToBarChart() {
-        barChart.getData().clear();
-        XYChart.Series<String, Number> series = new XYChart.Series<>();
-        series.setName("Commit information");
-        readCsvFileForGraph();
-        for (int i = 0; i < dates.size(); ++i) {
-            String date = dates.get(i);
-            int commitCount = Integer.parseInt(commits.get(i));
-            series.getData().add(new XYChart.Data<>(date, commitCount));
-        }
-        barChart.getData().add(series);
+    private void browseButtonPressed() {
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        String path = directoryChooser.showDialog(App.stage).toString();
+        repoDirectory.setText(path);
     }
 
-    private void readCsvFileForGraph() {
-        String csvFilePath = commitCsvPath.getText();
-        try {
-            FileReader fileReader = new FileReader(csvFilePath);
-            BufferedReader bufferedReader = new BufferedReader(fileReader);
-            String line;
-            while ((line = bufferedReader.readLine()) != null) {
-                String[] values = line.split(",");
-                dates.add(values[0]);
-                commits.add(values[1]);
-            }
-            tabPane.getSelectionModel().select(chartTab);
-            bufferedReader.close();
-        } catch (IOException e) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("CSV File could not be opened!");
-            alert.setHeaderText(null);
-            alert.setContentText("Error while opening the CSV file.\nPlease check your file path." +
-                    "\nYour file path was: " + csvFilePath);
 
-            alert.showAndWait();
-        }
-    }
+    // CSV button pressed
+//    @FXML
+//    private void browseButtonPressed() {
+//        barChart.getData().clear();
+//        XYChart.Series<String, Number> series = new XYChart.Series<>();
+//        series.setName("Commit information");
+//        readCsvFileForGraph();
+//        for (int i = 0; i < dates.size(); ++i) {
+//            String date = dates.get(i);
+//            int commitCount = Integer.parseInt(commits.get(i));
+//            series.getData().add(new XYChart.Data<>(date, commitCount));
+//        }
+//        barChart.getData().add(series);
+//    }
+
+//    private void readCsvFileForGraph() {
+//        String csvFilePath = repoDirectory.getText();
+//        try {
+//            FileReader fileReader = new FileReader(csvFilePath);
+//            BufferedReader bufferedReader = new BufferedReader(fileReader);
+//            String line;
+//            while ((line = bufferedReader.readLine()) != null) {
+//                String[] values = line.split(",");
+//                dates.add(values[0]);
+//                commits.add(values[1]);
+//            }
+//            tabPane.getSelectionModel().select(chartTab);
+//            bufferedReader.close();
+//        } catch (IOException e) {
+//            Alert alert = new Alert(Alert.AlertType.ERROR);
+//            alert.setTitle("CSV File could not be opened!");
+//            alert.setHeaderText(null);
+//            alert.setContentText("Error while opening the CSV file.\nPlease check your file path." +
+//                    "\nYour file path was: " + csvFilePath);
+//
+//            alert.showAndWait();
+//        }
+//    }
 
 
     @FXML
@@ -107,13 +127,13 @@ public class PrimaryController {
 
     private void getDifferentFilesInCsv() {
         fileNames.clear();
-        String csvFilePath = commitCsvPath.getText();
+        String csvFilePath = repoDirectory.getText();
         try {
             FileReader fileReader = new FileReader(csvFilePath);
             BufferedReader bufferedReader = new BufferedReader(fileReader);
             String line;
             while ((line = bufferedReader.readLine()) != null) {
-                String lineAsArray[] = line.split(",");
+                String[] lineAsArray = line.split(",");
                 for (int i = 2; i < lineAsArray.length; ++i)
                     addToArrayIfDistinct(lineAsArray[i]);
             }
@@ -186,13 +206,13 @@ public class PrimaryController {
 
     private void cartesianProductCommits() {
         commitTogetherCount.clear();
-        String csvFilePath = commitCsvPath.getText();
+        String csvFilePath = repoDirectory.getText();
         try {
             FileReader fileReader = new FileReader(csvFilePath);
             BufferedReader bufferedReader = new BufferedReader(fileReader);
             String line;
             while ((line = bufferedReader.readLine()) != null) {
-                String lineAsArray[] = line.split(",");
+                String[] lineAsArray = line.split(",");
                 for (int i = 2; i < lineAsArray.length; ++i) {
                     for (int j = i + 1; j < lineAsArray.length; ++j) {
                         String commit = lineAsArray[i];
@@ -237,7 +257,7 @@ public class PrimaryController {
     }
 
     private void increaseCommitTogetherCount(String commit) {
-        commitTogetherCount.merge(commit, 1, (a, b) -> a + b);
+        commitTogetherCount.merge(commit, 1, Integer::sum);
     }
 
 
