@@ -49,6 +49,13 @@ function statusOfFile()
 	cd "$currentDir"
 }
 
+function uniqueFileExtensions()
+{
+	git ls-files '*.*' > "$currentDir/Unique_file_extensions_temp.txt" 2>&1
+	cd "$currentDir"
+	python Unique_file_extensions.py
+}
+
 
 ###
 # Main body of script starts here
@@ -64,6 +71,7 @@ if [[ "$@" = "-h" ]]; then
 	echo "-nlog -> Generates commit history and commit notes without merges."
 	echo "--after="date" -> Shows the commits after the specified date. Date style is like Git Bash date."
 	echo "--before="date" -> Shows the commits before the specified date."
+	echo "-fe -> Generates a text file with unique file extensions of files in the repository."
 	exit
 fi
 
@@ -82,8 +90,10 @@ if [[ "$#" != 0 ]] && [[ "$@" != "-h" ]]; then
 		elif [[ "$i" = *after* ]] || [[ "$i" = *before* ]]; then
 			dateString="${dateString} $i"
 		elif [ "$i" = "-stat" ]; then
-      formatData
-      statusOfFile
+			formatData
+			statusOfFile
+		elif [ "$i" = "-fe" ]; then
+			uniqueFileExtensions
 		else
 			printf "Command not recognized.\nList of all the commands: git_data_collector -h\n"
 		fi
