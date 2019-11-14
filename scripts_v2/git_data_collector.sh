@@ -56,6 +56,13 @@ function uniqueFileExtensions()
 	python Unique_file_extensions.py
 }
 
+function filterFinalDump()
+{
+	arguments=$@
+	cd "$currentDir"
+	python Filter_final_dump.py $arguments
+	exit
+}
 
 ###
 # Main body of script starts here
@@ -72,6 +79,7 @@ if [[ "$@" = "-h" ]]; then
 	echo "--after="date" -> Shows the commits after the specified date. Date style is like Git Bash date."
 	echo "--before="date" -> Shows the commits before the specified date."
 	echo "-fe -> Generates a text file with unique file extensions of files in the repository."
+	echo "-filter -> Filters the Final_dump.txt. It is used internally in GitHubDataVisualizer, the first argument must be -filter and must not be combined with other commands."
 	exit
 fi
 
@@ -94,6 +102,8 @@ if [[ "$#" != 0 ]] && [[ "$@" != "-h" ]]; then
 			statusOfFile
 		elif [ "$i" = "-fe" ]; then
 			uniqueFileExtensions
+		elif [[ "$1" = "-filter" ]] || [[ $# -gt 1 ]]; then
+			filterFinalDump $@
 		else
 			printf "Command not recognized.\nList of all the commands: git_data_collector -h\n"
 		fi
