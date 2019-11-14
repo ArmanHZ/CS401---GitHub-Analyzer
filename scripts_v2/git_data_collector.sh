@@ -64,6 +64,13 @@ function filterFinalDump()
 	exit
 }
 
+function filesChangedTogether()
+{
+	cd "$currentDir"
+	python files_changed_together.py
+	exit
+}
+
 ###
 # Main body of script starts here
 ###
@@ -104,6 +111,8 @@ if [[ "$#" != 0 ]] && [[ "$@" != "-h" ]]; then
 			uniqueFileExtensions
 		elif [[ "$1" = "-filter" ]] || [[ $# -gt 1 ]]; then
 			filterFinalDump $@
+		elif [ "$i" = "-fct" ]; then
+			filesChangedTogether
 		else
 			printf "Command not recognized.\nList of all the commands: git_data_collector -h\n"
 		fi

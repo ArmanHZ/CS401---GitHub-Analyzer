@@ -77,7 +77,7 @@ def write_csv_format_to_file(csv_format):
 def main():
     with open('files_changed_together.csv', 'w', encoding='utf-8') as fp:   # Just to reset the file
         fp.close()
-    read_csv_file('final_dump.txt')
+    read_csv_file('Filtered_final_dump.txt')
 
 
 if __name__ == '__main__':
