@@ -1,24 +1,34 @@
 package org.openjfx;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.*;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 
 public class PrimaryController {
+
+    private static final String SCRIPTS_FILEPATH = "\\scripts_v2";
+    private static final String CSV_FILEPATH_EXTENSION = "\\scripts_v2\\files_changed_together.csv";
 
     @FXML
     private TabPane tabPane;
@@ -39,77 +49,105 @@ public class PrimaryController {
     private BorderPane matrixBorderPane;
 
     @FXML
-    private AnchorPane optionsLeftAnchor;
-
-    @FXML
-    private AnchorPane optionsRightAnchor;
+    private Label currentDirectoryLabel;
 
     @FXML
     private Button generateButton;
 
+    @FXML
+    private ListView<Label> fileExtensionFilter;
+
 
 //    private TreeMap<String, String> treeMap = new TreeMap<>();
 //    Or should I use something like Map<List<String>, Number> map = new HashMap<>();
-    private List<String> dates = new ArrayList<>();
-    private List<String> commits = new ArrayList<>();   // String because nums in csv file are string
+//    private List<String> dates = new ArrayList<>();
+//    private List<String> commits = new ArrayList<>();   // String because nums in csv file are string
 
     private List<String> fileNames = new ArrayList<>();
-
     private Map<String, Integer> commitTogetherCount = new HashMap<>();
+    private List<String> activeFilters = new ArrayList<>();
 
+    @FXML
+    private void generateButtonPressed() {
+        if (isValidDirectory()) {
+            constructTheRightFile(GitDataCollector.UNIQUE_FILE_EXTENSIONS);
+            createFilterTable();
+            currentDirectoryLabel.setText("Current directory: " + repoDirectory.getText());
+        } else {
+            System.out.println(SCRIPTS_FILEPATH + " does not exists!");   // Dummy call
+            // TODO counter measures
+        }
+    }
+
+    private void createFilterTable() {
+        try {
+            FileReader fileReader = new FileReader( repoDirectory.getText() + SCRIPTS_FILEPATH + "\\Unique_file_extensions.txt");
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+            ArrayList<Label> list = new ArrayList<>();
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                Label extension = new Label(line);
+                extension.maxWidthProperty().bind(fileExtensionFilter.widthProperty());
+                extension.setFont(new Font("System Bold", 14));
+                list.add(extension);
+            }
+            ObservableList<Label> items = FXCollections.observableArrayList(list);
+            fileExtensionFilter.setItems(items);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private boolean isValidDirectory() {
+        Path path = Paths.get(repoDirectory.getText() + SCRIPTS_FILEPATH);
+        if (repoDirectory.getText().isEmpty()) {
+            wrongPathAlert();
+            return false;
+        } else if (Files.notExists(path)) {
+            wrongPathAlert();
+            return false;
+        } else
+            return true;
+    }
+
+    private void wrongPathAlert() {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Wrong Path!");
+        alert.setHeaderText(null);
+        alert.setContentText("Either you have not entered a path or the repository does not contain \"" + SCRIPTS_FILEPATH + "\" folder.");
+        alert.showAndWait();
+    }
 
     @FXML
     private void browseButtonPressed() {
+        activeFilters.clear();  // Reset the filter just in case.
         DirectoryChooser directoryChooser = new DirectoryChooser();
-        String path = directoryChooser.showDialog(App.stage).toString();
-        repoDirectory.setText(path);
+        try {
+            String path = directoryChooser.showDialog(App.stage).toString();
+            repoDirectory.setText(path);
+        } catch (NullPointerException e) {
+            System.out.println("No file selected.");    // Actually not an error.
+        }
     }
 
-
-    // CSV button pressed
-//    @FXML
-//    private void browseButtonPressed() {
-//        barChart.getData().clear();
-//        XYChart.Series<String, Number> series = new XYChart.Series<>();
-//        series.setName("Commit information");
-//        readCsvFileForGraph();
-//        for (int i = 0; i < dates.size(); ++i) {
-//            String date = dates.get(i);
-//            int commitCount = Integer.parseInt(commits.get(i));
-//            series.getData().add(new XYChart.Data<>(date, commitCount));
-//        }
-//        barChart.getData().add(series);
-//    }
-
-//    private void readCsvFileForGraph() {
-//        String csvFilePath = repoDirectory.getText();
-//        try {
-//            FileReader fileReader = new FileReader(csvFilePath);
-//            BufferedReader bufferedReader = new BufferedReader(fileReader);
-//            String line;
-//            while ((line = bufferedReader.readLine()) != null) {
-//                String[] values = line.split(",");
-//                dates.add(values[0]);
-//                commits.add(values[1]);
-//            }
-//            tabPane.getSelectionModel().select(chartTab);
-//            bufferedReader.close();
-//        } catch (IOException e) {
-//            Alert alert = new Alert(Alert.AlertType.ERROR);
-//            alert.setTitle("CSV File could not be opened!");
-//            alert.setHeaderText(null);
-//            alert.setContentText("Error while opening the CSV file.\nPlease check your file path." +
-//                    "\nYour file path was: " + csvFilePath);
-//
-//            alert.showAndWait();
-//        }
-//    }
-
-
     @FXML
-    private void csvTextFieldPressEnter(ActionEvent ae) {
-        setGridPaneMatrix();    // For test purposes.
-//        addDataToBarChart();
+    private void setFileExtensionFilterClicked(MouseEvent click) {
+        if (click.getClickCount() == 2) {
+            String selectionStyle = fileExtensionFilter.getSelectionModel().getSelectedItem().getStyle();
+            if (selectionStyle.equals(("-fx-text-fill: maroon; -fx-background-color: peachpuff;"))) {
+                fileExtensionFilter.getSelectionModel().getSelectedItem().setStyle("-fx-text-fill: black; -fx-background-color: inherit");
+                activeFilters.remove(fileExtensionFilter.getSelectionModel().getSelectedItem().getText());
+            } else {
+                fileExtensionFilter.getSelectionModel().getSelectedItem().setStyle("-fx-text-fill: maroon; -fx-background-color: peachpuff;");
+                activeFilters.add(fileExtensionFilter.getSelectionModel().getSelectedItem().getText());
+            }
+        }
+    }
+
+    // TODO Accept data from the filter and create matrix according to the filter
+    @FXML
+    private void generateCoOccurrenceMatrix() {
+        setGridPaneMatrix();
     }
 
     private void setGridPaneMatrix() {
@@ -127,7 +165,16 @@ public class PrimaryController {
 
     private void getDifferentFilesInCsv() {
         fileNames.clear();
-        String csvFilePath = repoDirectory.getText();
+        String csvFilePath = repoDirectory.getText() + CSV_FILEPATH_EXTENSION;
+//        System.out.println(csvFilePath);    // Test
+        if (!activeFilters.isEmpty()) {
+            constructTheRightFile(GitDataCollector.FILTER_FINAL_DUMP);
+            constructTheRightFile(GitDataCollector.FILES_CHANGED_TOGETHER);
+        } else {
+            // TODO Implement else
+            System.out.println("Not yet implemented");
+            System.exit(0);
+        }
         try {
             FileReader fileReader = new FileReader(csvFilePath);
             BufferedReader bufferedReader = new BufferedReader(fileReader);
@@ -146,6 +193,28 @@ public class PrimaryController {
                     "\nYour file path was: " + csvFilePath);
 
             alert.showAndWait();
+        }
+    }
+
+    // TODO Find a better name for this.
+    private void constructTheRightFile(GitDataCollector argument) {
+        StringBuilder argumentsAsString = new StringBuilder(argument.toString());
+        String result;
+        if (argument.equals(GitDataCollector.FILTER_FINAL_DUMP)) {
+            argumentsAsString.append(" ");
+            for (String filter: activeFilters)
+                argumentsAsString.append(filter).append(", ");
+            result = argumentsAsString.toString().substring(0, argumentsAsString.toString().length() - 2);
+            System.out.println("Filter arguments: " + result);
+        } else
+            result = argumentsAsString.toString();
+        try {
+            String path = repoDirectory.getText() + SCRIPTS_FILEPATH + "\\dummy.bat";
+            Runtime runtime = Runtime.getRuntime();
+            Process p = runtime.exec("cmd.exe /c start \"\" \""+ path + "\" " + result, null, new File(repoDirectory.getText() + SCRIPTS_FILEPATH));
+            p.waitFor();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -207,6 +276,7 @@ public class PrimaryController {
     private void cartesianProductCommits() {
         commitTogetherCount.clear();
         String csvFilePath = repoDirectory.getText();
+        csvFilePath += CSV_FILEPATH_EXTENSION;
         try {
             FileReader fileReader = new FileReader(csvFilePath);
             BufferedReader bufferedReader = new BufferedReader(fileReader);

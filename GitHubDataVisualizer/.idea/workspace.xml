@@ -12,14 +12,9 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Class" />
+        <option value="Enum" />
       </list>
     </option>
-  </component>
-  <component name="FindInProjectRecents">
-    <findStrings>
-      <find>toStr</find>
-      <find>internal/plumbing/diff.go,leaves/commits.go value</find>
-    </findStrings>
   </component>
   <component name="MavenImportPreferences">
     <option name="importingSettings">

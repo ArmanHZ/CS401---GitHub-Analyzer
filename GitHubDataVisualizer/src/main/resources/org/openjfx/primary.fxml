@@ -6,6 +6,7 @@
 <?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.Tab?>
@@ -23,15 +24,17 @@
                 <AnchorPane fx:id="optionsLeftAnchor" minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
                      <children>
                         <Button fx:id="browseButton" layoutX="233.0" layoutY="37.0" mnemonicParsing="false" onAction="#browseButtonPressed" prefHeight="34.0" prefWidth="128.0" text="Browse" />
-                        <TextField fx:id="repoDirectory" layoutX="37.0" layoutY="37.0" onAction="#csvTextFieldPressEnter" prefHeight="34.0" prefWidth="180.0" promptText="Enter repository path" />
+                        <TextField fx:id="repoDirectory" layoutX="37.0" layoutY="37.0" prefHeight="34.0" prefWidth="180.0" promptText="Enter repository path" />
                         <TextField layoutX="37.0" layoutY="99.0" prefHeight="34.0" prefWidth="180.0" promptText="Enter GitHub URL" />
                         <Button layoutX="233.0" layoutY="99.0" mnemonicParsing="false" prefHeight="34.0" prefWidth="128.0" text="Pull" />
-                        <Button fx:id="generateButton" layoutX="37.0" layoutY="158.0" mnemonicParsing="false" prefHeight="34.0" prefWidth="180.0" text="Generate" />
+                        <Button fx:id="generateButton" layoutX="37.0" layoutY="158.0" mnemonicParsing="false" onAction="#generateButtonPressed" prefHeight="34.0" prefWidth="180.0" text="Generate" />
                      </children>
                   </AnchorPane>
                 <AnchorPane fx:id="optionsRightAnchor" minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
                      <children>
-                        <Label layoutX="99.0" layoutY="200.0" text="Enter the file path and press generate" />
+                        <Label fx:id="currentDirectoryLabel" layoutX="14.0" layoutY="38.0" text="Current directory: Not selected" />
+                        <ListView fx:id="fileExtensionFilter" layoutX="77.0" layoutY="135.0" onMouseClicked="#setFileExtensionFilterClicked" prefHeight="200.0" prefWidth="200.0" />
+                        <Button layoutX="14.0" layoutY="357.0" mnemonicParsing="false" onAction="#generateCoOccurrenceMatrix" prefHeight="44.0" prefWidth="132.0" text="Generete Co-occurrence Matrix" textAlignment="CENTER" wrapText="true" />
                      </children></AnchorPane>
               </items>
             </SplitPane>
