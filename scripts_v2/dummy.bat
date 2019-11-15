@@ -26,6 +26,7 @@ goto loop1
 
 :after_loop
 git_data_collector.sh -filter %RESTVAR%
+REM echo %RESTVAR%
 GOTO Exit:
 
 :FilesChangedTogether
