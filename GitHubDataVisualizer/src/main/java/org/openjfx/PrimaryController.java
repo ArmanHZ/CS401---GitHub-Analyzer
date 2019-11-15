@@ -203,8 +203,8 @@ public class PrimaryController {
         if (argument.equals(GitDataCollector.FILTER_FINAL_DUMP)) {
             argumentsAsString.append(" ");
             for (String filter: activeFilters)
-                argumentsAsString.append(filter).append(", ");
-            result = argumentsAsString.toString().substring(0, argumentsAsString.toString().length() - 2);
+                argumentsAsString.append(filter).append(" ");
+            result = argumentsAsString.toString().substring(0, argumentsAsString.toString().length() - 1);
             System.out.println("Filter arguments: " + result);
         } else
             result = argumentsAsString.toString();
