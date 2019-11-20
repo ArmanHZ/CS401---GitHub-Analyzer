@@ -10,6 +10,7 @@
 # Functions
 ###
 
+include_merges=true
 currentDir=$(pwd)
 cd ..
 # echo "Checking whether your Repository is up to date or not."
@@ -19,13 +20,17 @@ echo "Creating log files..."
 
 function formatData()
 {
-	git log --name-only --pretty=format:"%H|%an|%cn|%cd|%s" > "$currentDir/FormattedData.txt" 2>&1
-	printf "\n" >> "$currentDir/FormattedData.txt"
-	cd "$currentDir"
-	python format_data.py
+	if [ "$include_merges" = true ]; then
+		git log --name-only --pretty=format:"%H|%an|%cn|%cd|%s" > "$currentDir/FormattedData.txt" 2>&1
+		printf "\n" >> "$currentDir/FormattedData.txt"
+		cd "$currentDir"
+		python format_data.py
+	else
+		formatDataNoMerges
+	fi
 }
 
-function formatDataNoLog()
+function formatDataNoMerges()
 {
 	git log --no-merges --name-only --pretty=format:"%H|%an|%cn|%cd|%s" > "$currentDir/FormattedDataNoMerges.txt" 2>&1
 	printf "\n" >> "$currentDir/FormattedDataNoMerges.txt"
@@ -36,7 +41,20 @@ function formatDataNoLog()
 function formatDataDateRestriction()
 {
 	parameter=$1
-	git log --name-only $parameter --pretty=format:"%H|%an|%cn|%cd|%s" > "$currentDir/FormattedDataDateRestricted.txt" 2>&1
+	if [ "$include_merges" = true ]; then
+		git log --name-only $parameter --pretty=format:"%H|%an|%cn|%cd|%s" > "$currentDir/FormattedDataDateRestricted.txt" 2>&1
+		printf "\n" >> "$currentDir/FormattedDataDateRestricted.txt"
+		cd "$currentDir"
+		python format_data.py $parameter
+	else
+		formatDataDateRestrictionNoMerges $parameter
+	fi
+}
+
+function formatDataDateRestrictionNoMerges()
+{
+	parameter=$1
+	git log --no-merges --name-only $parameter --pretty=format:"%H|%an|%cn|%cd|%s" > "$currentDir/FormattedDataDateRestricted.txt" 2>&1
 	printf "\n" >> "$currentDir/FormattedDataDateRestricted.txt"
 	cd "$currentDir"
 	python format_data.py $parameter
@@ -81,12 +99,12 @@ if [ "$#" -eq 0 ]; then
 fi
 
 if [[ "$@" = "-h" ]]; then
-	echo "-log -> Generates commit history and commit notes."
-	echo "-nlog -> Generates commit history and commit notes without merges."
-	echo "--after="date" -> Shows the commits after the specified date. Date style is like Git Bash date."
-	echo "--before="date" -> Shows the commits before the specified date."
-	echo "-fe -> Generates a text file with unique file extensions of files in the repository."
-	echo "-filter -> Filters the Final_dump.txt. It is used internally in GitHubDataVisualizer, the first argument must be -filter and must not be combined with other commands."
+	echo "-log            -> Generates commit history and commit notes."
+	echo "--no-merges       -> (Use before other arguments) Generates commit history and commit notes without merges."
+	echo "--after="date"    -> Shows the commits after the specified date. Date style is like Git Bash date."
+	echo "--before="date"   -> Shows the commits before the specified date."
+	echo "-fe             -> Generates a text file with unique file extensions of files in the repository."
+	echo "-filter         -> Filters the Final_dump.txt. It is used internally in GitHubDataVisualizer, the first argument must be -filter and must not be combined with other commands."
 	exit
 fi
 
@@ -100,8 +118,8 @@ if [[ "$#" != 0 ]] && [[ "$@" != "-h" ]]; then
 	do
 		if [ "$i" = "-log" ]; then
 			formatData
-		elif [ "$i" = "-nlog" ]; then
-			formatDataNoLog
+		elif [ "$i" = "--no-merges" ]; then
+			include_merges=false
 		elif [[ "$i" = *after* ]] || [[ "$i" = *before* ]]; then
 			dateString="${dateString} $i"
 		elif [ "$i" = "-stat" ]; then
