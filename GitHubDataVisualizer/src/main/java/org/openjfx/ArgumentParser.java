@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ArgumentParser {
+class ArgumentParser {
 
     private String filePath;
     private String scriptsV2Path;
@@ -20,7 +20,7 @@ public class ArgumentParser {
             this.filePath = scriptsV2Path + "\\git_data_collector.sh";
     }
 
-    protected void setActiveFilters(List<String> list) {
+    void setActiveFilters(List<String> list) {
         this.activeFilters = list;
     }
 
@@ -46,7 +46,7 @@ public class ArgumentParser {
                 break;
             case FILTER_FINAL_DUMP:
                 String parsedArguments = filterFinalDumpParser(GitDataCollector.FILTER_FINAL_DUMP.toString());
-                invokeGitDataCollectorShellScript(parsedArguments);
+                createRunTimeArgument(parsedArguments);
                 break;
         }
     }
@@ -63,13 +63,12 @@ public class ArgumentParser {
     }
 
     private String filterFinalDumpParser(String argument) {
-        StringBuilder argumentsAsString = new StringBuilder(argument);
+        StringBuilder argumentsAsString = new StringBuilder(argument + " ");
         for (String filter: activeFilters)
             argumentsAsString.append(filter).append(" ");
         return argumentsAsString.toString().substring(0, argumentsAsString.toString().length() - 1);
     }
 
-    // TODO Find a better name
     private void createRunTimeArgument(String parsedArgument) {
         if (isWindows) {
             String parsedCommand = "cmd.exe /c start \"\"" + " \"" + filePath + "\" " + parsedArgument;
@@ -81,26 +80,5 @@ public class ArgumentParser {
             System.exit(0);
         }
     }
-
-//    private void willBeDeleted(GitDataCollector argument) {
-//        StringBuilder argumentsAsString = new StringBuilder(argument.toString());
-//        String result;
-//        if (argument.equals(GitDataCollector.FILTER_FINAL_DUMP)) {
-//            argumentsAsString.append(" ");
-//            for (String filter: activeFilters)
-//                argumentsAsString.append(filter).append(" ");
-//            result = argumentsAsString.toString().substring(0, argumentsAsString.toString().length() - 1);
-//            System.out.println("Filter arguments: " + result);
-//        } else
-//            result = argumentsAsString.toString();
-//        try {
-//            String path = repoDirectory.getText() + SCRIPTS_FILEPATH + "\\dummy.bat";
-//            Runtime runtime = Runtime.getRuntime();
-//            Process p = runtime.exec("cmd.exe /c start \"\" \""+ path + "\" " + result, null, new File(repoDirectory.getText() + SCRIPTS_FILEPATH));
-//            p.waitFor();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
 
 }

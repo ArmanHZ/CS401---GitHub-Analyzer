@@ -4,79 +4,83 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Executors;
+import java.util.*;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.*;
-import javafx.scene.chart.BarChart;
-import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.DirectoryChooser;
-import javafx.stage.FileChooser;
 
 public class PrimaryController {
 
+    // Paths
     private static final String SCRIPTS_FILEPATH = "\\scripts_v2";
     private static final String CSV_FILEPATH_EXTENSION = "\\scripts_v2\\files_changed_together.csv";
 
-    @FXML
-    private TabPane tabPane;
+    private static boolean WITH_MERGES = false;
 
-    @FXML
-    private BarChart<String, Number> barChart;
-
-    @FXML
-    private Tab chartTab;
-
-    @FXML
-    private TextField repoDirectory;
-
-    @FXML
-    private ScrollPane matrixPane;
-
-    @FXML
-    private BorderPane matrixBorderPane;
-
-    @FXML
-    private Label currentDirectoryLabel;
-
-    @FXML
-    private Button generateButton;
-
-    @FXML
-    private ListView<Label> fileExtensionFilter;
-
-
-//    private TreeMap<String, String> treeMap = new TreeMap<>();
-//    Or should I use something like Map<List<String>, Number> map = new HashMap<>();
-//    private List<String> dates = new ArrayList<>();
-//    private List<String> commits = new ArrayList<>();   // String because nums in csv file are string
+    // Objects from primary.fxml
+    @FXML private TextField repoDirectory;
+    @FXML private ScrollPane matrixPane;
+    @FXML private BorderPane matrixBorderPane;
+    @FXML private Label currentDirectoryLabel;
+    @FXML private ListView<Label> fileExtensionFilter;
+    @FXML private CheckBox dateRestrictionCheckBox;
+    @FXML private CheckBox withMergesCheckBox;
+    @FXML private DatePicker datePickerBefore;
+    @FXML private DatePicker datePickerAfter;
 
     private List<String> fileNames = new ArrayList<>();
     private Map<String, Integer> commitTogetherCount = new HashMap<>();
     private List<String> activeFilters = new ArrayList<>();
 
+    private ArgumentParser argumentParser;
+
     @FXML
     private void generateButtonPressed() {
+        argumentParser = new ArgumentParser(repoDirectory.getText().toString(), true);
+        activeFilters.clear();  // Reset the filters.
         if (isValidDirectory()) {
-            constructTheRightFile(GitDataCollector.UNIQUE_FILE_EXTENSIONS);
+            File fp = new File(repoDirectory.getText());
+            boolean result;
+            if (fp.exists()) {
+                result = overWriteFinalDumpPopUp();
+            } else {
+                System.out.println(SCRIPTS_FILEPATH + " does not exists!");
+                return;
+            }
+            if (result) {
+                createCorrectFile();
+            }
+            argumentParser.parseInput(GitDataCollector.UNIQUE_FILE_EXTENSIONS);
             createFilterTable();
             currentDirectoryLabel.setText("Current directory: " + repoDirectory.getText());
+
         } else {
-            System.out.println(SCRIPTS_FILEPATH + " does not exists!");   // Dummy call
-            // TODO counter measures
+            System.out.println(SCRIPTS_FILEPATH + " does not exists!");
         }
+    }
+
+    private boolean overWriteFinalDumpPopUp() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirmation Dialog");
+        alert.setHeaderText(null);
+        alert.setContentText("final_dump.txt exists.\nDo you want to overwrite it?");
+        Optional<ButtonType> result = alert.showAndWait();
+        return result.orElse(null) == ButtonType.OK;    // .orElse is .get but safer. Apparently.
+    }
+
+    private void createCorrectFile() {
+        if (!dateRestrictionCheckBox.isSelected() && !withMergesCheckBox.isSelected())
+            argumentParser.parseInput(GitDataCollector.LOG_NO_MERGES);
+        else if (!dateRestrictionCheckBox.isSelected() && withMergesCheckBox.isSelected())
+            argumentParser.parseInput(GitDataCollector.LOG);
+        // TODO add date restrictions
     }
 
     private void createFilterTable() {
@@ -120,7 +124,6 @@ public class PrimaryController {
 
     @FXML
     private void browseButtonPressed() {
-        activeFilters.clear();  // Reset the filter just in case.
         DirectoryChooser directoryChooser = new DirectoryChooser();
         try {
             String path = directoryChooser.showDialog(App.stage).toString();
@@ -134,20 +137,30 @@ public class PrimaryController {
     private void setFileExtensionFilterClicked(MouseEvent click) {
         if (click.getClickCount() == 2) {
             String selectionStyle = fileExtensionFilter.getSelectionModel().getSelectedItem().getStyle();
-            if (selectionStyle.equals(("-fx-text-fill: maroon; -fx-background-color: peachpuff;"))) {
+            if (selectionStyle.equals(("-fx-text-fill: darkgreen; -fx-background-color: mediumseagreen;"))) {
                 fileExtensionFilter.getSelectionModel().getSelectedItem().setStyle("-fx-text-fill: black; -fx-background-color: inherit");
                 activeFilters.remove(fileExtensionFilter.getSelectionModel().getSelectedItem().getText());
+
             } else {
-                fileExtensionFilter.getSelectionModel().getSelectedItem().setStyle("-fx-text-fill: maroon; -fx-background-color: peachpuff;");
+                fileExtensionFilter.getSelectionModel().getSelectedItem().setStyle("-fx-text-fill: darkgreen; -fx-background-color: mediumseagreen;");
                 activeFilters.add(fileExtensionFilter.getSelectionModel().getSelectedItem().getText());
             }
         }
     }
 
-    // TODO Accept data from the filter and create matrix according to the filter
     @FXML
     private void generateCoOccurrenceMatrix() {
-        setGridPaneMatrix();
+        if (fileExtensionFilter.getItems().isEmpty()) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Filters could not be loaded!");
+            alert.setHeaderText(null);
+            alert.setContentText("Please first select a folder and click Generate.");
+            alert.showAndWait();
+        } else {
+//            activeFilters.clear();
+            argumentParser.setActiveFilters(activeFilters);
+            setGridPaneMatrix();
+        }
     }
 
     private void setGridPaneMatrix() {
@@ -166,16 +179,20 @@ public class PrimaryController {
     private void getDifferentFilesInCsv() {
         fileNames.clear();
         String csvFilePath = repoDirectory.getText() + CSV_FILEPATH_EXTENSION;
-//        System.out.println(csvFilePath);    // Test
         if (!activeFilters.isEmpty()) {
-            constructTheRightFile(GitDataCollector.FILTER_FINAL_DUMP);
-            constructTheRightFile(GitDataCollector.FILES_CHANGED_TOGETHER);
+            filterAndFindChangedTogether();
         } else {
-            // TODO Implement else
-            System.out.println("Not yet implemented");
-            System.exit(0);
+            if (entireFilterWarning()) {
+                for (Label label : fileExtensionFilter.getItems()) {
+                    String labelText = label.getText();
+                    activeFilters.add(labelText);
+                }
+                filterAndFindChangedTogether();
+            } else
+                return;
         }
         try {
+            Thread.sleep(2500);    // Minimum necessary pause for the files get ready for visualization.
             FileReader fileReader = new FileReader(csvFilePath);
             BufferedReader bufferedReader = new BufferedReader(fileReader);
             String line;
@@ -193,27 +210,27 @@ public class PrimaryController {
                     "\nYour file path was: " + csvFilePath);
 
             alert.showAndWait();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
-    // TODO Find a better name for this.
-    private void constructTheRightFile(GitDataCollector argument) {
-        StringBuilder argumentsAsString = new StringBuilder(argument.toString());
-        String result;
-        if (argument.equals(GitDataCollector.FILTER_FINAL_DUMP)) {
-            argumentsAsString.append(" ");
-            for (String filter: activeFilters)
-                argumentsAsString.append(filter).append(" ");
-            result = argumentsAsString.toString().substring(0, argumentsAsString.toString().length() - 1);
-            System.out.println("Filter arguments: " + result);
-        } else
-            result = argumentsAsString.toString();
+    private boolean entireFilterWarning() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirmation Dialog");
+        alert.setHeaderText(null);
+        alert.setContentText("This will create a Matrix with all the filters active.\nThis may take a very long time depending on the file size.\nDo you want to proceed?");
+        Optional<ButtonType> result = alert.showAndWait();
+        return result.orElse(null) == ButtonType.OK;    // .orElse is .get but safer. Apparently.
+    }
+
+    private void filterAndFindChangedTogether() {
         try {
-            String path = repoDirectory.getText() + SCRIPTS_FILEPATH + "\\dummy.bat";
-            Runtime runtime = Runtime.getRuntime();
-            Process p = runtime.exec("cmd.exe /c start \"\" \""+ path + "\" " + result, null, new File(repoDirectory.getText() + SCRIPTS_FILEPATH));
-            p.waitFor();
-        } catch (Exception e) {
+            argumentParser.parseInput(GitDataCollector.FILTER_FINAL_DUMP);
+            Thread.sleep(2500);    // Minimum necessary pause for the files get ready for visualization.
+            argumentParser.parseInput(GitDataCollector.FILES_CHANGED_TOGETHER);
+            Thread.sleep(2500);    // Minimum necessary pause for the files get ready for visualization.
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
@@ -247,28 +264,28 @@ public class PrimaryController {
     }
 
     private void setGridPaneFirstColumn(GridPane gridPane) {
-        for (int columns = 1; columns < fileNames.size(); ++columns) {
+        for (int columns = 0; columns < fileNames.size(); ++columns) {
             VerticalLabel columnNames = new VerticalLabel(VerticalDirection.DOWN);
-            columnNames.setText(fileNames.get(columns - 1));
+            columnNames.setText(fileNames.get(columns));
             columnNames.setMinHeight(Region.USE_PREF_SIZE);
-            gridPane.add(columnNames, columns, 0);
+            gridPane.add(columnNames, columns + 1, 0);
         }
     }
 
     private void setGridPaneFirstRow(GridPane gridPane) {
-        for (int rows = 1; rows < fileNames.size(); ++rows) {
-            Label rowNames = new Label(fileNames.get(rows - 1));
+        for (int rows = 0; rows < fileNames.size(); ++rows) {
+            Label rowNames = new Label(fileNames.get(rows));
             rowNames.setMinWidth(Region.USE_PREF_SIZE);
-            gridPane.add(rowNames, 0, rows);
+            gridPane.add(rowNames, 0, rows + 1);
         }
     }
 
     private void setGridPaneMiddleRowsColumns(GridPane gridPane) {
         cartesianProductCommits();
-        for (int rows = 1; rows < fileNames.size(); ++rows) {
-            for (int columns = 1; columns < fileNames.size(); ++columns) {
-                Label label = setMatrixCell(rows - 1, columns - 1);
-                gridPane.add(label, rows, columns);
+        for (int rows = 0; rows < fileNames.size(); ++rows) {
+            for (int columns = 0; columns < fileNames.size(); ++columns) {
+                Label label = setMatrixCell(rows, columns);
+                gridPane.add(label, rows + 1, columns + 1);
             }
         }
     }
@@ -330,5 +347,29 @@ public class PrimaryController {
         commitTogetherCount.merge(commit, 1, Integer::sum);
     }
 
+    @FXML
+    private void dateRestrictionCheckBoxClicked() {
+        if (dateRestrictionCheckBox.isSelected()) {
+            datePickerBefore.setDisable(false);
+            datePickerAfter.setDisable(false);
+        } else {
+            datePickerBefore.setDisable(true);
+            datePickerAfter.setDisable(true);
+        }
+    }
+
+    @FXML
+    private void withMergesCheckBoxClicked() {
+        WITH_MERGES = withMergesCheckBox.isSelected();
+        System.out.println(WITH_MERGES);
+    }
+
+    @FXML
+    private void clearFilters() {
+        for (Label label : fileExtensionFilter.getItems()) {
+            label.setStyle("-fx-text-fill: black; -fx-background-color: inherit");
+        }
+        activeFilters.clear();
+    }
 
 }

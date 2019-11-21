@@ -5,10 +5,20 @@ GOTO Begin:
 
 :Begin
 echo First argument is: %firstArgument%
+IF "%firstArgument%"=="LOG_NO_MERGES" GOTO LogNoMerges:
+IF "%firstArgument%"=="LOG" GOTO Log:
 IF "%firstArgument%"=="UNIQUE_FILE_EXTENSIONS" GOTO UniqueFileExtensions:
 IF "%firstArgument%"=="FILTER_FINAL_DUMP" GOTO FilterFinalDump:
 IF "%firstArgument%"=="FILES_CHANGED_TOGETHER" GOTO FilesChangedTogether:
 IF "%firstArgument%"=="TEST" GOTO Test:
+GOTO Exit:
+
+:LogNoMerges
+git_data_collector.sh --no-merges -log
+GOTO Exit:
+
+:Log
+git_data_collector.sh -log
 GOTO Exit:
 
 :UniqueFileExtensions

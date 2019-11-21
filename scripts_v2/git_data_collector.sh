@@ -32,10 +32,10 @@ function formatData()
 
 function formatDataNoMerges()
 {
-	git log --no-merges --name-only --pretty=format:"%H|%an|%cn|%cd|%s" > "$currentDir/FormattedDataNoMerges.txt" 2>&1
-	printf "\n" >> "$currentDir/FormattedDataNoMerges.txt"
+	git log --no-merges --name-only --pretty=format:"%H|%an|%cn|%cd|%s" > "$currentDir/FormattedData.txt" 2>&1
+	printf "\n" >> "$currentDir/FormattedData.txt"
 	cd "$currentDir"
-	python format_data.py "-nlog"
+	python format_data.py
 }
 
 function formatDataDateRestriction()

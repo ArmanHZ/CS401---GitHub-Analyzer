@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
 <?import javafx.scene.chart.BarChart?>
 <?import javafx.scene.chart.CategoryAxis?>
 <?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ScrollPane?>
@@ -27,14 +30,24 @@
                         <TextField fx:id="repoDirectory" layoutX="37.0" layoutY="37.0" prefHeight="34.0" prefWidth="180.0" promptText="Enter repository path" />
                         <TextField layoutX="37.0" layoutY="99.0" prefHeight="34.0" prefWidth="180.0" promptText="Enter GitHub URL" />
                         <Button layoutX="233.0" layoutY="99.0" mnemonicParsing="false" prefHeight="34.0" prefWidth="128.0" text="Pull" />
-                        <Button fx:id="generateButton" layoutX="37.0" layoutY="158.0" mnemonicParsing="false" onAction="#generateButtonPressed" prefHeight="34.0" prefWidth="180.0" text="Generate" />
+                        <Button fx:id="generateButton" layoutX="37.0" layoutY="153.0" mnemonicParsing="false" onAction="#generateButtonPressed" prefHeight="45.0" prefWidth="180.0" text="Generate" />
+                        <DatePicker fx:id="datePickerAfter" disable="true" layoutX="82.0" layoutY="256.0" prefHeight="26.0" prefWidth="135.0" />
+                        <Label layoutX="38.0" layoutY="260.0" prefHeight="18.0" prefWidth="78.0" text="After: " />
+                        <Label layoutX="37.0" layoutY="221.0" text="Before: " />
+                        <DatePicker fx:id="datePickerBefore" disable="true" layoutX="82.0" layoutY="216.0" prefHeight="26.0" prefWidth="135.0" />
+                        <CheckBox fx:id="dateRestrictionCheckBox" layoutX="233.0" layoutY="153.0" mnemonicParsing="false" onAction="#dateRestrictionCheckBoxClicked" prefHeight="18.0" prefWidth="128.0" text="Date restriction" />
+                        <CheckBox fx:id="withMergesCheckBox" layoutX="233.0" layoutY="181.0" mnemonicParsing="false" onAction="#withMergesCheckBoxClicked" text="With merges" />
                      </children>
                   </AnchorPane>
                 <AnchorPane fx:id="optionsRightAnchor" minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
                      <children>
                         <Label fx:id="currentDirectoryLabel" layoutX="14.0" layoutY="38.0" text="Current directory: Not selected" />
-                        <ListView fx:id="fileExtensionFilter" layoutX="77.0" layoutY="135.0" onMouseClicked="#setFileExtensionFilterClicked" prefHeight="200.0" prefWidth="200.0" />
-                        <Button layoutX="14.0" layoutY="357.0" mnemonicParsing="false" onAction="#generateCoOccurrenceMatrix" prefHeight="44.0" prefWidth="132.0" text="Generete Co-occurrence Matrix" textAlignment="CENTER" wrapText="true" />
+                        <ListView fx:id="fileExtensionFilter" layoutX="69.0" layoutY="98.0" onMouseClicked="#setFileExtensionFilterClicked" prefHeight="253.0" prefWidth="260.0" AnchorPane.bottomAnchor="119.0" AnchorPane.leftAnchor="69.0" AnchorPane.rightAnchor="69.0" AnchorPane.topAnchor="98.0">
+                           <cursor>
+                              <Cursor fx:constant="HAND" />
+                           </cursor></ListView>
+                        <Button layoutX="99.0" layoutY="412.0" mnemonicParsing="false" onAction="#generateCoOccurrenceMatrix" prefHeight="44.0" prefWidth="132.0" text="Generete Co-occurrence Matrix" textAlignment="CENTER" wrapText="true" AnchorPane.bottomAnchor="13.600000000000023" />
+                        <Button layoutX="14.0" layoutY="412.0" mnemonicParsing="false" onAction="#clearFilters" prefHeight="44.0" text="Clear filters" AnchorPane.bottomAnchor="13.600000000000023" />
                      </children></AnchorPane>
               </items>
             </SplitPane>
