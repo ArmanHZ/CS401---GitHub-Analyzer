@@ -43,7 +43,7 @@ public class PrimaryController {
 
     @FXML
     private void generateButtonPressed() {
-        argumentParser = new ArgumentParser(repoDirectory.getText().toString(), true);
+        argumentParser = new ArgumentParser(repoDirectory.getText().toString(), true, this);
         activeFilters.clear();  // Reset the filters.
         if (isValidDirectory()) {
             File fp = new File(repoDirectory.getText());
@@ -80,7 +80,10 @@ public class PrimaryController {
             argumentParser.parseInput(GitDataCollector.LOG_NO_MERGES);
         else if (!dateRestrictionCheckBox.isSelected() && withMergesCheckBox.isSelected())
             argumentParser.parseInput(GitDataCollector.LOG);
-        // TODO add date restrictions
+        else if (dateRestrictionCheckBox.isSelected() && !withMergesCheckBox.isSelected())
+            argumentParser.parseInput(GitDataCollector.LOG_DATE_RESTRICTED_NO_MERGES);
+        else if (dateRestrictionCheckBox.isSelected() && withMergesCheckBox.isSelected())
+            argumentParser.parseInput(GitDataCollector.LOG_DATE_RESTRICTED);
     }
 
     private void createFilterTable() {
@@ -157,7 +160,6 @@ public class PrimaryController {
             alert.setContentText("Please first select a folder and click Generate.");
             alert.showAndWait();
         } else {
-//            activeFilters.clear();
             argumentParser.setActiveFilters(activeFilters);
             setGridPaneMatrix();
         }
@@ -370,6 +372,18 @@ public class PrimaryController {
             label.setStyle("-fx-text-fill: black; -fx-background-color: inherit");
         }
         activeFilters.clear();
+    }
+
+    String getDate() {
+        if (dateRestrictionCheckBox.isSelected()) {
+            StringBuilder stringBuilder = new StringBuilder();
+            if (datePickerAfter.getValue() != null)
+                stringBuilder.append("--after=").append(datePickerAfter.getValue());
+            if (datePickerBefore.getValue() != null)
+                stringBuilder.append(" ").append("--before=").append(datePickerBefore.getValue());
+        return stringBuilder.toString();
+        }
+        return null;
     }
 
 }

@@ -10,14 +10,16 @@ class ArgumentParser {
     private String scriptsV2Path;
     private List<String> activeFilters;
     private boolean isWindows;
+    private PrimaryController primaryController;
 
-    ArgumentParser(String filePath, boolean isWindows) {
+    ArgumentParser(String filePath, boolean isWindows, PrimaryController primaryController) {
         scriptsV2Path = filePath + "\\scripts_v2";
         this.isWindows = isWindows;
         if (isWindows)
             this.filePath =  scriptsV2Path + "\\dummy.bat";
         else
             this.filePath = scriptsV2Path + "\\git_data_collector.sh";
+        this.primaryController = primaryController;
     }
 
     void setActiveFilters(List<String> list) {
@@ -36,7 +38,8 @@ class ArgumentParser {
                 createRunTimeArgument(GitDataCollector.LOG_DATE_RESTRICTED.toString());
                 break;
             case LOG_DATE_RESTRICTED_NO_MERGES:
-                createRunTimeArgument(GitDataCollector.LOG_DATE_RESTRICTED_NO_MERGES.toString());
+                String parsedArgument = GitDataCollector.LOG_DATE_RESTRICTED_NO_MERGES.toString() + " " + primaryController.getDate();
+                createRunTimeArgument(parsedArgument);
                 break;
             case FILES_CHANGED_TOGETHER:
                 createRunTimeArgument(GitDataCollector.FILES_CHANGED_TOGETHER.toString());

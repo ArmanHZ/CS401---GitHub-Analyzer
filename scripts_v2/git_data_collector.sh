@@ -121,6 +121,7 @@ if [[ "$#" != 0 ]] && [[ "$@" != "-h" ]]; then
 		elif [ "$i" = "--no-merges" ]; then
 			include_merges=false
 		elif [[ "$i" = *after* ]] || [[ "$i" = *before* ]]; then
+			echo i is: $i
 			dateString="${dateString} $i"
 		elif [ "$i" = "-stat" ]; then
 			formatData
@@ -137,6 +138,7 @@ if [[ "$#" != 0 ]] && [[ "$@" != "-h" ]]; then
 	done
 	
 	if [[ -n $dateString ]]; then
+		echo "Date is: " $dateString
 		formatDataDateRestriction $dateString
 	fi
 

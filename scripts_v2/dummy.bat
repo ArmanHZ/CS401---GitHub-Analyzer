@@ -10,6 +10,7 @@ IF "%firstArgument%"=="LOG" GOTO Log:
 IF "%firstArgument%"=="UNIQUE_FILE_EXTENSIONS" GOTO UniqueFileExtensions:
 IF "%firstArgument%"=="FILTER_FINAL_DUMP" GOTO FilterFinalDump:
 IF "%firstArgument%"=="FILES_CHANGED_TOGETHER" GOTO FilesChangedTogether:
+IF "%firstArgument%"=="LOG_DATE_RESTRICTED_NO_MERGES" GOTO LogDateRestrictedNoMerges:
 IF "%firstArgument%"=="TEST" GOTO Test:
 GOTO Exit:
 
@@ -41,6 +42,24 @@ GOTO Exit:
 
 :FilesChangedTogether
 git_data_collector.sh -fct
+GOTO Exit:
+
+:LogDateRestrictedNoMerges
+set argC=0
+for %%x in (%*) do Set /A argC+=1
+echo %argC%
+if %argC% gtr 3 GOTO MultiVariableDate:
+GOTO SingleVariableDate:
+:SingleVariableDate
+echo "Single"
+set RESTVAR=%2="%3"
+git_data_collector.sh --no-merges %RESTVAR%
+echo %RESTVAR%
+GOTO Exit:
+:MultiVariableDate
+echo "Double"
+set RESTVAR=%2="%3" %4="%5"
+git_data_collector.sh --no-merges %RESTVAR%
 GOTO Exit:
 
 :TEST
