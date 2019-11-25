@@ -25,6 +25,7 @@ public class PrimaryController {
     private static boolean WITH_MERGES = false;
 
     // Objects from primary.fxml
+    @FXML private TabPane tabPane;
     @FXML private TextField repoDirectory;
     @FXML private ScrollPane matrixPane;
     @FXML private BorderPane matrixBorderPane;
@@ -162,6 +163,7 @@ public class PrimaryController {
         } else {
             argumentParser.setActiveFilters(activeFilters);
             setGridPaneMatrix();
+            tabPane.getSelectionModel().select(2);
         }
     }
 

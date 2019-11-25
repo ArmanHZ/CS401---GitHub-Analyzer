@@ -44,10 +44,10 @@ def string_to_csv_format(input_list):
 
 def git_date_to_python_date(commit_date):
     date_split = commit_date.split(' ')
-    year = date_split[6]
-    month = date_split[3]
+    year = date_split[8]
+    month = date_split[5]
     month = month_as_number(month).__str__()
-    day = date_split[4]
+    day = date_split[6]
     return str(year + '/' + month + '/' + day)
 
 
