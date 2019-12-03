@@ -37,12 +37,14 @@ public class PartnerPersons extends Application {
 	 private static ArrayList <String> PairPersonsFileTotal = new ArrayList<String>();
 	 private static ArrayList <String> PairPersonsFileTotalS = new ArrayList<String>();
      private static HashMap<String,Integer> PartnerPerson =new HashMap<String,Integer>();
+     private static HashMap<String,Integer> PartnerPerson2 =new HashMap<String,Integer>();
 	 
 	 
 
 	@Override
 	public void start(Stage stage) throws IOException {
 		 File file = new File("final_dump.txt");
+		 // Buffered reader
 		 Scanner f = new Scanner(file);
 		 while(f.hasNextLine()) {
 				String line1 = f.nextLine();
@@ -68,6 +70,7 @@ public class PartnerPersons extends Application {
 				
 				
 	    }
+		 f.close();
 		/* for(String fileinfo:filesinfo){
 			
 		     System.out.println(fileinfo);
@@ -216,7 +219,7 @@ public class PartnerPersons extends Application {
         	for(int i=0;i<PairPersonsFileTotalS.size();i++){
         	String [] pairPerson= PairPersonsFileTotalS.get(i).split(" ");
         	PartnerPerson.put(pairPerson[0]+","+pairPerson[1],Integer.valueOf(pairPerson[2]));
-        		
+        	PartnerPerson2.put(pairPerson[1]+","+pairPerson[0],Integer.valueOf(pairPerson[2]));	
         		
         	}
         	
@@ -263,12 +266,14 @@ public class PartnerPersons extends Application {
         	 else if(i>0 && j>0){
         		String name1= authors.get(i-1);
          		String name2= authors.get(j-1);
-         		String finalname = name2+","+name1;
+         		String finalname = name1+","+name2;
+         		
          		label.setText(finalname);
          		  for(int k=0;k<PairPersonsFileTotalS.size();k++){
          			  String[] pairPerson = PairPersonsFileTotalS.get(k).split(" ");
          			 if(finalname.equals(pairPerson[0]+","+pairPerson[1])){
          				int value=PartnerPerson.get(finalname);
+         				
          				 if(label.getText().equals(finalname)){
          					 label.setText(""+value);
          					int red = value * 20;
@@ -278,15 +283,26 @@ public class PartnerPersons extends Application {
          					label.getStyleClass().add("matrixCells");
          			        label.setMinSize(20, 20);
          				 }
+         			 }else if(finalname.equals(pairPerson[1]+","+pairPerson[0])){
+         				int value=PartnerPerson2.get(finalname); 
+         				if(label.getText().equals(finalname)){
+        					 label.setText(""+value);
+        					int red = value * 20;
+        			        int green = 255 - (value * 10);
+        			        
+        					label.setStyle("-fx-background-color: rgb(" + red + "," + green + ",0); -fx-border-color: black;");
+        					label.getStyleClass().add("matrixCells");
+        			        label.setMinSize(20, 20);
+        				 }
          			 }
          		  }
          		  
          		  if(label.getText().equals(finalname)){
          			 label.setText(""+0);
          			 label.setStyle("-fx-background-color: #ADFF2F; -fx-border-color: black;");
-         			 label.getStyleClass().add("matrixCells");
+         			 // label.getStyleClass().add("matrixCells");
          	         label.setMinSize(20, 20);
-         		  }
+         		  } 
          		   
          		
          		
@@ -314,3 +330,4 @@ public class PartnerPersons extends Application {
 	}
 
 }
+
