@@ -65,7 +65,7 @@ public class CommitCountWithDate extends Application {
 			 dates.add(date);
 		    }
 	    }
-	
+	    int max=0;
         for(String date:dates){
 		    for(String alldate: allDates){
 			    if(date.equals(alldate)){
@@ -73,11 +73,17 @@ public class CommitCountWithDate extends Application {
 				totalcommit++;
 			    }
 		   }
+		    
 		    allinfo.add(date+" "+count);
 		    commitCount.add(count);
 		    System.out.println("Occurrence of " + date + " is " + count + " times.");
+		   
+		    if(count>max){
+		    	max=count;
+		    }
             count=0;
        }
+        
 	 
 	     String [][] info  = new String[dates.size()][4];
 	     String [] x = new String[2];
@@ -113,7 +119,7 @@ public class CommitCountWithDate extends Application {
 		        System.out.println(" ");
 	   } 
 	    CategoryAxis xaxis = new CategoryAxis();  
-	    NumberAxis yaxis = new NumberAxis(0,totalcommit,1);  
+	    NumberAxis yaxis = new NumberAxis(0,max*2,1);  
 	    xaxis.setLabel("Date");  
 	    yaxis.setLabel("Commit Count");  
 	    //Creating StackedAreaChart   
@@ -146,3 +152,4 @@ public class CommitCountWithDate extends Application {
 	}
 
 }
+
