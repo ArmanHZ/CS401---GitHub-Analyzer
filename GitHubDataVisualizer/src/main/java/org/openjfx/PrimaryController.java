@@ -325,10 +325,11 @@ public class PrimaryController {
             BufferedWriter finalWriter = writer;
             commitTogetherCount.forEach((key, value) -> {
                 String[] keySplit = key.split(",");
-                String result = keySplit[0] + " " + keySplit[1] + " " + value;
+                String result = keySplit[0] + " " + keySplit[1];
                 try {
                     assert finalWriter != null;
-                    finalWriter.write(result + "\n");
+                    for (int i = 0; i < value; ++i)
+                        finalWriter.write(result + "\n");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -367,6 +368,9 @@ public class PrimaryController {
     // TODO Refactor
     private void setGridPaneMiddleRowsColumnsSorted(GridPane gridPane) {
         gridPane.getChildren().clear();
+        Button options = new Button("Options");
+        setOptionsButtonEventListener(options, gridPane);   //
+        gridPane.add(options, 0, 0);
         List<String> rowNames = new ArrayList<>();
         List<String> columnNames = new ArrayList<>();
         commitTogetherCount.forEach((key, value) -> {
