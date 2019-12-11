@@ -4,17 +4,25 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.*;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.*;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.Stage;
 
 public class PrimaryController {
 
@@ -89,7 +97,7 @@ public class PrimaryController {
 
     private void createFilterTable() {
         try {
-            FileReader fileReader = new FileReader( repoDirectory.getText() + SCRIPTS_FILEPATH + "\\Unique_file_extensions.txt");
+            FileReader fileReader = new FileReader(repoDirectory.getText() + SCRIPTS_FILEPATH + "\\Unique_file_extensions.txt");
             BufferedReader bufferedReader = new BufferedReader(fileReader);
             ArrayList<Label> list = new ArrayList<>();
             String line;
@@ -172,7 +180,9 @@ public class PrimaryController {
         GridPane gridPane = new GridPane();
 //        gridPane.setGridLinesVisible(true); // For debugging
         setGridPaneConstraints(gridPane);
-        gridPane.add(new Button("Options"), 0, 0);
+        Button optionsButton = new Button("Options");
+        setOptionsButtonEventListener(optionsButton, gridPane);
+        gridPane.add(optionsButton, 0, 0);
         setGridPaneFirstColumn(gridPane);
         setGridPaneFirstRow(gridPane);
         setGridPaneMiddleRowsColumns(gridPane);
@@ -267,6 +277,65 @@ public class PrimaryController {
         gridPane.setVgap(2);
     }
 
+    private void setOptionsButtonEventListener(Button optionsButton, GridPane gridPane) {
+        optionsButton.setOnAction(event -> {
+            VBox vBox = new VBox();
+            vBox.setPadding(new Insets(10, 50, 50, 50));
+            vBox.setSpacing(10);
+            vBox.setAlignment(Pos.BASELINE_CENTER);
+            Stage stage = new Stage();
+            stage.setTitle("Options menu");
+            stage.setScene(new Scene(vBox, 300, 100));
+
+            Button sortButton = new Button("Sort matrix");
+            sortMatrixButtonPressed(sortButton, gridPane);
+
+            Button extractMapping = new Button("Extract mapping of matrix");
+            extractMappingPressed(extractMapping);
+
+            vBox.getChildren().addAll(sortButton, extractMapping);
+            stage.show();
+        });
+    }
+
+    private void sortMatrixButtonPressed(Button sortButton, GridPane gridPane) {
+        sortButton.setOnAction(actionEvent -> {
+            // Sorting Hashmap
+            List<Map.Entry<String, Integer>> list = new LinkedList<>(commitTogetherCount.entrySet());
+            list.sort(Comparator.comparing(Map.Entry::getValue));
+            Collections.reverse(list);
+            HashMap<String, Integer> sorted = new LinkedHashMap<>();
+            for (Map.Entry<String, Integer> entry : list) {
+                sorted.put(entry.getKey(), entry.getValue());
+            }
+            commitTogetherCount = sorted;
+//            commitTogetherCount.forEach((s, integer) -> System.out.println(s + "\t" + integer));
+            setGridPaneMiddleRowsColumnsSorted(gridPane);
+        });
+    }
+
+    private void extractMappingPressed(Button extractMappingButton) {
+        extractMappingButton.setOnAction(actionEvent -> {
+            BufferedWriter writer = null;
+            try {
+                writer = new BufferedWriter(new FileWriter(repoDirectory.getText() + SCRIPTS_FILEPATH + "\\Data_dump\\map.txt"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            BufferedWriter finalWriter = writer;
+            commitTogetherCount.forEach((key, value) -> {
+                String[] keySplit = key.split(",");
+                String result = keySplit[0] + " " + keySplit[1] + " " + value;
+                try {
+                    assert finalWriter != null;
+                    finalWriter.write(result + "\n");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+        });
+    }
+
     private void setGridPaneFirstColumn(GridPane gridPane) {
         for (int columns = 0; columns < fileNames.size(); ++columns) {
             VerticalLabel columnNames = new VerticalLabel(VerticalDirection.DOWN);
@@ -286,11 +355,62 @@ public class PrimaryController {
 
     private void setGridPaneMiddleRowsColumns(GridPane gridPane) {
         cartesianProductCommits();
+        System.out.println(fileNames.size());
         for (int rows = 0; rows < fileNames.size(); ++rows) {
             for (int columns = 0; columns < fileNames.size(); ++columns) {
                 Label label = setMatrixCell(rows, columns);
                 gridPane.add(label, rows + 1, columns + 1);
             }
+        }
+    }
+
+    // TODO Refactor
+    private void setGridPaneMiddleRowsColumnsSorted(GridPane gridPane) {
+        gridPane.getChildren().clear();
+        List<String> rowNames = new ArrayList<>();
+        List<String> columnNames = new ArrayList<>();
+        commitTogetherCount.forEach((key, value) -> {
+            String[] keySplit = key.split(",");
+            if (!rowNames.contains(keySplit[0]))
+                rowNames.add(keySplit[0]);
+            if (!columnNames.contains(keySplit[1]))
+                columnNames.add(keySplit[1]);
+        });
+        System.out.println("Size after sort: " + commitTogetherCount.size());
+        setFirstColumnAndRowFromSortedMap(gridPane, columnNames, rowNames);
+        for (int rows = 0; rows < rowNames.size(); ++rows) {
+            for (int columns = 0; columns < columnNames.size(); ++columns) {
+                String toBeSearched = rowNames.get(rows) + "," + columnNames.get(columns);
+                int numChangedTogether;
+                if (commitTogetherCount.get(toBeSearched) == null)
+                    numChangedTogether = 0;
+                else
+                    numChangedTogether = commitTogetherCount.get(toBeSearched);
+                Label label = new Label();
+                gridPane.add(label, columns + 1, rows + 1);
+                Tooltip tooltip = new Tooltip();
+                tooltip.setText("Files: \n" + rowNames.get(rows) + "\n" + columnNames.get(columns) + "\nChanged together count: " + numChangedTogether);
+                label.setTooltip(tooltip);
+                int red = numChangedTogether * 20;
+                int green = 255 - (numChangedTogether * 10);
+                label.setStyle("-fx-background-color: rgb(" + red + "," + green + ",0);");
+                label.getStyleClass().add("matrixCells");
+                label.setMinSize(20, 20);
+            }
+        }
+    }
+
+    private void setFirstColumnAndRowFromSortedMap(GridPane gridPane, List columnNames, List rowNames) {
+        for (int columns = 0; columns < columnNames.size(); ++columns) {
+            VerticalLabel columnName = new VerticalLabel(VerticalDirection.DOWN);
+            columnName.setText((String) columnNames.get(columns));
+            columnName.setMinHeight(Region.USE_PREF_SIZE);
+            gridPane.add(columnName, columns + 1, 0);
+        }
+        for (int rows = 0; rows < rowNames.size(); ++rows) {
+            Label rowName = new Label((String) rowNames.get(rows));
+            rowName.setMinWidth(Region.USE_PREF_SIZE);
+            gridPane.add(rowName, 0, rows + 1);
         }
     }
 
@@ -383,7 +503,7 @@ public class PrimaryController {
                 stringBuilder.append("--after=").append(datePickerAfter.getValue());
             if (datePickerBefore.getValue() != null)
                 stringBuilder.append(" ").append("--before=").append(datePickerBefore.getValue());
-        return stringBuilder.toString();
+            return stringBuilder.toString();
         }
         return null;
     }
