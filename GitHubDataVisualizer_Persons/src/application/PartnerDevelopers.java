@@ -22,7 +22,7 @@ import javafx.stage.Stage;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-public class PartnerPersons extends Application {
+public class PartnerDevelopers extends Application {
 	 private static  ArrayList <String> names = new ArrayList<String>();
 	 private static ArrayList <String> authors = new ArrayList<String>();
 	 
@@ -153,7 +153,7 @@ public class PartnerPersons extends Application {
 					   
 			          }
 				 
-					 // System.out.println(name+" "+filename +" "+ count);
+					  // System.out.println(name+" "+filename +" "+ count);
 					 if( count !=0 ){
 					  fileChangeInfos.add(name+" "+filename+" "+count);
 					 }
@@ -167,7 +167,7 @@ public class PartnerPersons extends Application {
         		
         /*	for(String filechangeinfo:fileChangeInfos){
         		System.out.println(filechangeinfo);
-        	}*/
+        	} */
         	
         	int counter =0;
         	for(int i=0;i<fileChangeInfos.size();i++){
@@ -179,9 +179,12 @@ public class PartnerPersons extends Application {
             		if(!fileinfoarray[0].equals(fileinfoarray2[0]) && fileinfoarray[2].equals(fileinfoarray2[2])){
             			
             			counter++;
-            			//System.out.println(fileinfoarray[0]+" "+fileinfoarray2[0]+" "+counter+ " " +fileinfoarray[2]);
+            			System.out.println(fileinfoarray[0]+" "+fileinfoarray2[0]+" "+counter+ " " +fileinfoarray[2]);
             			PairPersonsFile.add(fileinfoarray[0]+" "+fileinfoarray2[0]+" "+fileinfoarray[2]+" "+counter);
             		}
+            		
+            		
+            		
             		
             		
         	  }	
@@ -200,7 +203,7 @@ public class PartnerPersons extends Application {
         			
         			}
         		}
-        		//System.out.println(pairPerson[0]+" "+pairPerson[1]+" "+commonFileCount);
+        	//	System.out.println(pairPerson[0]+" "+pairPerson[1]+" "+commonFileCount);
         		PairPersonsFileTotal.add(pairPerson[0]+" "+pairPerson[1]+" "+commonFileCount);
         		commonFileCount=0;
         		
@@ -320,7 +323,7 @@ public class PartnerPersons extends Application {
              
         gridPane.setAlignment(Pos.CENTER);
        
-        stage.setTitle(" Partner Person Matrix ");
+        stage.setTitle(" Partner Developers Matrix ");
         Scene scene = new Scene(gridPane, 800, 600);
         stage.setScene(scene);
         stage.show();
@@ -330,4 +333,3 @@ public class PartnerPersons extends Application {
 	}
 
 }
-
