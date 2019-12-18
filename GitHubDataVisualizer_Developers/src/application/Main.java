@@ -12,15 +12,18 @@ import javax.print.DocFlavor.URL;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Side;
 import javafx.stage.Stage;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.paint.Color;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.PieChart;
 import javafx.scene.chart.ScatterChart;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.Label;
 import javafx.stage.Stage;
  
  
@@ -99,12 +102,15 @@ public class Main extends Application {
     
                   // create a pie chart 
                   PieChart pie_chart = new PieChart(FXCollections.observableArrayList(data)); 
-    
+                  
+                  pie_chart.setLabelLineLength(0.5);
+                  pie_chart.setLegendSide(Side.BOTTOM);
+             
                   // create a Group 
                  Group group = new Group(pie_chart); 
     
                   // create a scene 
-                 Scene scene = new Scene(group, 500, 600); 
+                 Scene scene = new Scene(group, 600, 600); 
     
                   // set the scene 
                  stage.setScene(scene); 
@@ -129,3 +135,4 @@ public class Main extends Application {
         launch(args);
     }
 }
+
