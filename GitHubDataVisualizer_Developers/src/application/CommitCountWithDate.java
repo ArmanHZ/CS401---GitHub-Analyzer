@@ -12,6 +12,7 @@ import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.StackedAreaChart;
 import javafx.scene.chart.XYChart;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
 public class CommitCountWithDate extends Application {
@@ -132,12 +133,17 @@ public class CommitCountWithDate extends Application {
 			    
 		    for(int i=0;i<info.length;i++){
 			    if(name.equals(info[i][0])){
-			       person.getData().add(new XYChart.Data(info[i][1]+" "+info[i][2],Integer.valueOf(info[i][3])));  
+			    	 
+			       person.getData().add(new XYChart.Data(info[i][1]+" "+info[i][2],Integer.valueOf(info[i][3])));
+			      
+				  
 			    }
 		   // TODO Auto-generated method stub
 		    }
 		    stack.getData().add(person);
+		    stack.setCreateSymbols(false);
 		    person.setName(name);  
+		   
 	   }
 			    
 	    Group root = new Group();  
@@ -152,4 +158,3 @@ public class CommitCountWithDate extends Application {
 	}
 
 }
-
