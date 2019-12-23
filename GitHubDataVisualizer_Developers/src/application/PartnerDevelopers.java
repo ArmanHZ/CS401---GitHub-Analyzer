@@ -1,8 +1,11 @@
 package application;
 
+import static java.util.stream.Collectors.toMap;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Scanner;
 
 import com.sun.prism.paint.Color;
@@ -11,15 +14,22 @@ import javafx.application.Application;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.geometry.VerticalDirection;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 
 public class PartnerDevelopers extends Application {
@@ -38,6 +48,9 @@ public class PartnerDevelopers extends Application {
 	 private static ArrayList <String> PairPersonsFileTotalS = new ArrayList<String>();
      private static HashMap<String,Integer> PartnerPerson =new HashMap<String,Integer>();
      private static HashMap<String,Integer> PartnerPerson2 =new HashMap<String,Integer>();
+     private static ArrayList <String> DevelopersNames = new ArrayList<String>();
+     private static ArrayList <String> Developers = new ArrayList<String>();
+ 	 
 	 
 	 
 
@@ -226,10 +239,37 @@ public class PartnerDevelopers extends Application {
         		
         	}
         	
-        	for(Entry<String, Integer> pairs : PartnerPerson.entrySet()) {
+       /* 	for(Entry<String, Integer> pairs : PartnerPerson.entrySet()) {
                 System.out.println(pairs);
-       }
+       } */
         	
+        	 Map<String, Integer> sorted = PartnerPerson
+             		.entrySet()
+                     .stream()
+                     .sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
+                     .collect(
+                         toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2,
+                             LinkedHashMap::new));
+              
+                 System.out.println("map after sorting by values in descending order: "
+                     + sorted);
+            
+                 for(Entry<String, Integer> pairs : sorted.entrySet()) {
+                		String [] DevelopersName =  pairs.getKey().split(",");
+                	
+                        System.out.println(pairs);
+                        
+                        DevelopersNames.add(DevelopersName[0]);
+                        DevelopersNames.add(DevelopersName[1]);
+                        
+               }
+                	for(String developer:DevelopersNames){
+         		    if(!Developers.contains(developer)){
+         			 Developers.add(developer);
+         		    }
+         	    }
+            
+           
         
         
        
@@ -237,6 +277,9 @@ public class PartnerDevelopers extends Application {
 	   
 	 
       stage.setTitle("GridPane Experiment");
+      Label label1 = new Label();
+      label1.setFont(new Font("Arial", 24));
+        
         
         GridPane gridPane = new GridPane();
     
@@ -285,6 +328,14 @@ public class PartnerDevelopers extends Application {
          					label.setStyle("-fx-background-color: rgb(" + red + "," + green + ",0); -fx-border-color: black;");
          					label.getStyleClass().add("matrixCells");
          			        label.setMinSize(20, 20);
+         			       label.setOnMouseEntered(new EventHandler<MouseEvent>() {
+            			         @Override
+            			           public void handle(MouseEvent e) {
+            			             label1.setText(name2);
+            			       
+            			           }
+            			        });
+      				 
          				 }
          			 }else if(finalname.equals(pairPerson[1]+","+pairPerson[0])){
          				int value=PartnerPerson2.get(finalname); 
@@ -296,6 +347,13 @@ public class PartnerDevelopers extends Application {
         					label.setStyle("-fx-background-color: rgb(" + red + "," + green + ",0); -fx-border-color: black;");
         					label.getStyleClass().add("matrixCells");
         			        label.setMinSize(20, 20);
+        			        label.setOnMouseEntered(new EventHandler<MouseEvent>() {
+              			         @Override
+              			           public void handle(MouseEvent e) {
+              			             label1.setText(name1);
+              			       
+              			           }
+              			        });
         				 }
          			 }
          		  }
@@ -310,7 +368,109 @@ public class PartnerDevelopers extends Application {
          		
          		
          		
-        	 } 
+        	 }  else if(i==0 && j==0){
+        		 Button btn = new Button();
+      	        btn.setText(" SORT ");
+      	        btn.setOnAction(new EventHandler<ActionEvent>() {
+      	            @Override
+      	            public void handle(ActionEvent event) {
+      	            	 GridPane gridPane = new GridPane();
+      	                
+      	                
+      	                for(int i=0;i<=Developers.size();i++){
+      	                	
+      	                	for(int j=0;j<=Developers.size();j++){
+      	                		
+      	                	    Label label =new Label(i+" "+j);
+      	                	    
+      	                	 gridPane.add(label, i, j,1,1);
+      	                	 if(i>0 && j>0){
+      	                	    label.setStyle("-fx-border-color: black; -fx-font-size: 10;");
+      	                	 }
+      	                	 if(i==0 && j>0){
+      	                		 label.setText(Developers.get(j-1));
+      	                		 label.getStyleClass().add("matrixCells");
+      	             	         label.setMinSize(20, 20);
+      	             	         
+      	                	 }else if(j==0 && i>0){
+      	                		// label.setText(authors.get(i-1));
+      	                		// label.setMinSize(10, 10);
+      	             	        // label.setRotate(-45);
+      	                		 label.setText("");
+      	                		 VerticalLabel columnNames = new VerticalLabel(VerticalDirection.UP);
+      	                         columnNames.setText(Developers.get(i-1));
+      	                         columnNames.setMinHeight(Region.USE_PREF_SIZE);
+      	                         gridPane.add(columnNames, i, 0);
+      	                	 }
+      	                	 else if(i>0 && j>0){
+      	                		String name1= Developers.get(i-1);
+      	                 		String name2= Developers.get(j-1);
+      	                 		String finalname = name1+","+name2;
+      	                 		
+      	                 		label.setText(finalname);
+      	                 		  for(int k=0;k<PairPersonsFileTotalS.size();k++){
+      	                 			  String[] pairPerson = PairPersonsFileTotalS.get(k).split(" ");
+      	                 			 if(finalname.equals(pairPerson[0]+","+pairPerson[1])){
+      	                 				int value=PartnerPerson.get(finalname);
+      	                 				
+      	                 				 if(label.getText().equals(finalname)){
+      	                 					 label.setText(""+value);
+      	                 					int red = value * 20;
+      	                 			        int green = 255 - (value * 10);
+      	                 			        
+      	                 					label.setStyle("-fx-background-color: rgb(" + red + "," + green + ",0); -fx-border-color: black;");
+      	                 					label.getStyleClass().add("matrixCells");
+      	                 			        label.setMinSize(20, 20);
+      	                 			     label.setOnMouseEntered(new EventHandler<MouseEvent>() {
+      	                 			         @Override
+      	                 			           public void handle(MouseEvent e) {
+      	                 			             label1.setText(name2);
+      	                 			       
+      	                 			           }
+      	                 			        });
+      	                 				 }
+      	                 			 }else if(finalname.equals(pairPerson[1]+","+pairPerson[0])){
+      	                 				int value=PartnerPerson2.get(finalname); 
+      	                 				if(label.getText().equals(finalname)){
+      	                					 label.setText(""+value);
+      	                					int red = value * 20;
+      	                			        int green = 255 - (value * 10);
+      	                			        
+      	                					label.setStyle("-fx-background-color: rgb(" + red + "," + green + ",0); -fx-border-color: black;");
+      	                					label.getStyleClass().add("matrixCells");
+      	                			        label.setMinSize(20, 20);
+      	                			      label.setOnMouseEntered(new EventHandler<MouseEvent>() {
+      	                  			         @Override
+      	                  			           public void handle(MouseEvent e) {
+      	                  			             label1.setText(name1);
+      	                  			       
+      	                  			           }
+      	                  			        });
+      	                				 }
+      	                 			 }
+      	                 		  }
+      	                 		  
+      	                 		  if(label.getText().equals(finalname)){
+      	                 			 label.setText(""+0);
+      	                 			 label.setStyle("-fx-background-color: #ADFF2F; -fx-border-color: black;");
+      	                 			 // label.getStyleClass().add("matrixCells");
+      	                 	         label.setMinSize(20, 20);
+      	                 		  } 
+      	                 		   
+      	                 		
+      	                 		
+      	                 		
+      	                	 } else if( i==0 && j==0){
+      	                		 label.setText("SORTED");
+      	                	 }
+      	                	 
+      	                	 
+      	                	 
+      	                	
+      	                	
+      	                	 
+      	                	
+      	                
         	 
         	 
         	 
@@ -319,12 +479,50 @@ public class PartnerDevelopers extends Application {
         	 }
         	
         }
+      	              gridPane.setAlignment(Pos.CENTER);
+     	              
+     	              Label label = new Label();
+     	              label.setFont(new Font("Arial", 24));
+     	            
+     	             
+     	              
+     	              Group group = new Group();
+     	              group.getChildren().add(gridPane);
+     	              group.getChildren().add(label1);
+     	             
+     	              stage.setTitle(" Partner Developers Matrix ");
+     	              Scene scene = new Scene(group, 800, 600);
+     	              stage.setScene(scene);
+     	              stage.show();
+     	            }
+     	        });
+     	        gridPane.add(btn, i, j,1,1);
+     	        
+     	 }
+           	 
+           	 
+           	 
+           	
+           	
+           	 }
+           	
+           }
+          
        
              
         gridPane.setAlignment(Pos.CENTER);
+        
+        Label label = new Label();
+        label.setFont(new Font("Arial", 24));
+      
+       
+        
+        Group group = new Group();
+        group.getChildren().add(gridPane);
+        group.getChildren().add(label1);
        
         stage.setTitle(" Partner Developers Matrix ");
-        Scene scene = new Scene(gridPane, 800, 600);
+        Scene scene = new Scene(group, 800, 600);
         stage.setScene(scene);
         stage.show();
     }
