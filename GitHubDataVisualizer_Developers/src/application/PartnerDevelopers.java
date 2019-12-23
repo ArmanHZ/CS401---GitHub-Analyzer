@@ -22,9 +22,11 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import java.util.HashMap;
@@ -279,6 +281,9 @@ public class PartnerDevelopers extends Application {
       stage.setTitle("GridPane Experiment");
       Label label1 = new Label();
       label1.setFont(new Font("Arial", 24));
+      
+      ListView listView = new ListView();
+
         
         
         GridPane gridPane = new GridPane();
@@ -328,10 +333,19 @@ public class PartnerDevelopers extends Application {
          					label.setStyle("-fx-background-color: rgb(" + red + "," + green + ",0); -fx-border-color: black;");
          					label.getStyleClass().add("matrixCells");
          			        label.setMinSize(20, 20);
-         			       label.setOnMouseEntered(new EventHandler<MouseEvent>() {
+         			        label.setOnMouseClicked(new EventHandler<MouseEvent>() {
             			         @Override
             			           public void handle(MouseEvent e) {
-            			             label1.setText(name2);
+            			        	 listView.getItems().clear();
+            			        	 
+            			        	 for (int i=0; i<PairPersonsFile.size(); i++){
+            			        	 String[] filenames =PairPersonsFile.get(i).split(" ");
+            			        	 if(finalname.equals(filenames[0]+","+filenames[1])){
+            			        		 listView.getItems().add(filenames[2]+" - "+filenames[3]);
+            			        	 }
+            			        	 }
+            			        	 
+            			            
             			       
             			           }
             			        });
@@ -347,13 +361,22 @@ public class PartnerDevelopers extends Application {
         					label.setStyle("-fx-background-color: rgb(" + red + "," + green + ",0); -fx-border-color: black;");
         					label.getStyleClass().add("matrixCells");
         			        label.setMinSize(20, 20);
-        			        label.setOnMouseEntered(new EventHandler<MouseEvent>() {
-              			         @Override
-              			           public void handle(MouseEvent e) {
-              			             label1.setText(name1);
-              			       
-              			           }
-              			        });
+        			        label.setOnMouseClicked(new EventHandler<MouseEvent>() {
+           			         @Override
+           			           public void handle(MouseEvent e) {
+           			        	 listView.getItems().clear();
+           			        	 
+           			        	 for (int i=0; i<PairPersonsFile.size(); i++){
+           			        	 String[] filenames =PairPersonsFile.get(i).split(" ");
+           			        	 if(finalname.equals(filenames[1]+","+filenames[0])){
+           			        		 listView.getItems().add(filenames[2]+" - "+filenames[3]);
+           			        	 }
+           			        	 }
+           			        	 
+           			            
+           			       
+           			           }
+           			        });
         				 }
          			 }
          		  }
@@ -421,13 +444,22 @@ public class PartnerDevelopers extends Application {
       	                 					label.setStyle("-fx-background-color: rgb(" + red + "," + green + ",0); -fx-border-color: black;");
       	                 					label.getStyleClass().add("matrixCells");
       	                 			        label.setMinSize(20, 20);
-      	                 			     label.setOnMouseEntered(new EventHandler<MouseEvent>() {
-      	                 			         @Override
-      	                 			           public void handle(MouseEvent e) {
-      	                 			             label1.setText(name2);
-      	                 			       
-      	                 			           }
-      	                 			        });
+      	                 			        label.setOnMouseClicked(new EventHandler<MouseEvent>() {
+      	              			         @Override
+      	              			           public void handle(MouseEvent e) {
+      	              			        	 listView.getItems().clear();
+      	              			        	 
+      	              			        	 for (int i=0; i<PairPersonsFile.size(); i++){
+      	              			        	 String[] filenames =PairPersonsFile.get(i).split(" ");
+      	              			        	 if(finalname.equals(filenames[0]+","+filenames[1])){
+      	              			        		 listView.getItems().add(filenames[2]+" - "+filenames[3]);
+      	              			        	 }
+      	              			        	 }
+      	              			        	 
+      	              			            
+      	              			       
+      	              			           }
+      	              			          });
       	                 				 }
       	                 			 }else if(finalname.equals(pairPerson[1]+","+pairPerson[0])){
       	                 				int value=PartnerPerson2.get(finalname); 
@@ -439,13 +471,22 @@ public class PartnerDevelopers extends Application {
       	                					label.setStyle("-fx-background-color: rgb(" + red + "," + green + ",0); -fx-border-color: black;");
       	                					label.getStyleClass().add("matrixCells");
       	                			        label.setMinSize(20, 20);
-      	                			      label.setOnMouseEntered(new EventHandler<MouseEvent>() {
-      	                  			         @Override
-      	                  			           public void handle(MouseEvent e) {
-      	                  			             label1.setText(name1);
-      	                  			       
-      	                  			           }
-      	                  			        });
+      	                			        label.setOnMouseClicked(new EventHandler<MouseEvent>() {
+      	               			          @Override
+      	               			           public void handle(MouseEvent e) {
+      	               			        	 listView.getItems().clear();
+      	               			        	 
+      	               			        	 for (int i=0; i<PairPersonsFile.size(); i++){
+      	               			        	 String[] filenames =PairPersonsFile.get(i).split(" ");
+      	               			        	 if(finalname.equals(filenames[1]+","+filenames[0])){
+      	               			        		 listView.getItems().add(filenames[2]+" - "+filenames[3]);
+      	               			        	 }
+      	               			        	 }
+      	               			        	 
+      	               			            
+      	               			       
+      	               			           }
+      	               			        });
       	                				 }
       	                 			 }
       	                 		  }
@@ -462,38 +503,40 @@ public class PartnerDevelopers extends Application {
       	                 		
       	                	 } else if( i==0 && j==0){
       	                		 label.setText("SORTED");
+      	                		 label.setStyle("-fx-background-color: #ADFF2F; -fx-border-color: black;");
+      	                		 
       	                	 }
       	                	 
-      	                	 
-      	                	 
-      	                	
-      	                	
-      	                	 
-      	                	
-      	                
-        	 
-        	 
-        	 
-        	
-        	
+      	                	       	                	       	    	      	                	      	                	       	                	      	                        	         	         	                	
         	 }
         	
         }
-      	              gridPane.setAlignment(Pos.CENTER);
-     	              
-     	              Label label = new Label();
-     	              label.setFont(new Font("Arial", 24));
-     	            
-     	             
-     	              
-     	              Group group = new Group();
-     	              group.getChildren().add(gridPane);
-     	              group.getChildren().add(label1);
-     	             
-     	              stage.setTitle(" Partner Developers Matrix ");
-     	              Scene scene = new Scene(group, 800, 600);
-     	              stage.setScene(scene);
-     	              stage.show();
+      	            gridPane.setAlignment(Pos.CENTER);
+      	            gridPane.setLayoutX(10);
+      	            gridPane.setLayoutY(10);
+      	            
+      	           
+      	            Label label = new Label();
+      	            label.setFont(new Font("Arial", 16.5));
+      	            label.setStyle("-fx-background-color: #ADFF2F; -fx-border-color: black;");
+      	            label.setText("File Name - Count of Interchange");
+      	            label.setLayoutX(500);
+      	            label.setLayoutY(24);
+      	           
+      	           
+      	            listView.setLayoutX(500);
+      	            listView.setLayoutY(50);
+      	            //VBox vBox = new VBox(listView, gridPane);
+      	            
+      	            Group group = new Group();
+      	            group.getChildren().add(gridPane);
+      	            group.getChildren().add(label);
+      	            group.getChildren().add(listView);
+      	           
+      	            stage.setTitle(" Partner Developers Matrix ");
+      	            Scene scene = new Scene(group, 800, 600);
+      	            stage.setScene(scene);
+      	            stage.show();
      	            }
      	        });
      	        gridPane.add(btn, i, j,1,1);
@@ -511,15 +554,26 @@ public class PartnerDevelopers extends Application {
        
              
         gridPane.setAlignment(Pos.CENTER);
+        gridPane.setLayoutX(10);
+        gridPane.setLayoutY(10);
         
-        Label label = new Label();
-        label.setFont(new Font("Arial", 24));
-      
        
+        Label label = new Label();
+        label.setFont(new Font("Arial", 16.5));
+        label.setStyle("-fx-background-color: #ADFF2F; -fx-border-color: black;");
+        label.setText("File Name - Count of Interchange");
+        label.setLayoutX(500);
+        label.setLayoutY(24);
+       
+       
+        listView.setLayoutX(500);
+        listView.setLayoutY(50);
+        //VBox vBox = new VBox(listView, gridPane);
         
         Group group = new Group();
         group.getChildren().add(gridPane);
-        group.getChildren().add(label1);
+        group.getChildren().add(label);
+        group.getChildren().add(listView);
        
         stage.setTitle(" Partner Developers Matrix ");
         Scene scene = new Scene(group, 800, 600);
