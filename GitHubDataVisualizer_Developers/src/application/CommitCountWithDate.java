@@ -6,12 +6,15 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 import javafx.application.Application;
+import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.StackedAreaChart;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.ListView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
@@ -77,13 +80,16 @@ public class CommitCountWithDate extends Application {
 		    
 		    allinfo.add(date+" "+count);
 		    commitCount.add(count);
-		    System.out.println("Occurrence of " + date + " is " + count + " times.");
+		    //System.out.println("Occurrence of " + date + " is " + count + " times.");
 		   
 		    if(count>max){
 		    	max=count;
 		    }
             count=0;
        }
+     /*   for (String all:allinfo){
+        	System.out.println(all);
+        } */
         
 	 
 	     String [][] info  = new String[dates.size()][4];
@@ -119,13 +125,18 @@ public class CommitCountWithDate extends Application {
 		    }
 		        System.out.println(" ");
 	   } 
+	    ListView listView = new ListView();
+	    
+	    for(String author:authors){
+	    	 listView.getItems().add(author);
+	    }
 	    CategoryAxis xaxis = new CategoryAxis();  
 	    NumberAxis yaxis = new NumberAxis(0,max*2,1);  
 	    xaxis.setLabel("Date");  
 	    yaxis.setLabel("Commit Count");  
 	    //Creating StackedAreaChart   
 	    StackedAreaChart stack = new StackedAreaChart(xaxis,yaxis);  
-	    stack.setTitle("Commit Count With Date");  
+	    stack.setTitle("Commit Frequency by Date ");  
 			    
 	    for(String name: authors){
 			    
@@ -145,12 +156,76 @@ public class CommitCountWithDate extends Application {
 		    person.setName(name);  
 		   
 	   }
+	    listView.setOnMouseClicked(new EventHandler<MouseEvent>(){
+			@Override
+			public void handle(MouseEvent arg0) {
+			 stack.getData().clear();
+			 XYChart.Series person= new XYChart.Series();
+			for(int i=0;i<allinfo.size();i++){
+				
+				String[] data= allinfo.get(i).split(" ");
+				
+				if(listView.getSelectionModel().getSelectedItem().equals(data[0])){
+					  CategoryAxis xaxis = new CategoryAxis();  
+					    NumberAxis yaxis = new NumberAxis(0,50,1);  
+					    xaxis.setLabel("Date");  
+					    yaxis.setLabel("Commit Count");  
+					    //Creating StackedAreaChart   
+					    StackedAreaChart stack = new StackedAreaChart(xaxis,yaxis);  
+					    stack.setTitle("Commit Frequency by Date ");  
+							    
+					   
+							    
+					  
+							    
+						  
+							    	 
+							     person.getData().add(new XYChart.Data(data[1]+" "+data[2],Integer.valueOf(data[3])));
+							      
+								  
+							    
+						   // TODO Auto-generated method stub
+						    
+						  
+							       
+						   
+					   
+				}
+				
+			}
+			  
+			  stack.getData().add(person);
+			  stack.setCreateSymbols(false);
+			  person.setName((String)listView.getSelectionModel().getSelectedItem());     
+			    
+			 
+			   // listView.setLayoutX(600);
+		      //  listView.setLayoutY(50);
+					    
+			 /*   Group root = new Group();  
+			    root.getChildren().add(stack); 
+			    root.getChildren().add(listView);
+			    Scene scene = new Scene(root,600,400);  
+			    stage.setScene(scene);  
+			    stage.setTitle("Commit Frequency By Date");  
+			    stage.show();  */
+			
+			}
+		});
+	    stack.setScaleX(1.2);
+	    stack.setScaleY(1.2);
+	    stack.setLayoutX(50);
+	    stack.setLayoutY(50);
+	    
+	    listView.setLayoutX(600);
+        listView.setLayoutY(50);
 			    
 	    Group root = new Group();  
-	    root.getChildren().add(stack);  
+	    root.getChildren().add(stack); 
+	    root.getChildren().add(listView);
 	    Scene scene = new Scene(root,600,400);  
 	    stage.setScene(scene);  
-	    stage.setTitle("StackedAreaChart Example");  
+	    stage.setTitle("Commit Frequency By Date");  
 	    stage.show();          
     }
 	public static void main(String[] args) {  
@@ -158,3 +233,4 @@ public class CommitCountWithDate extends Application {
 	}
 
 }
+
