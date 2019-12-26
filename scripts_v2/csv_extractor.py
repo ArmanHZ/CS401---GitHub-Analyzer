@@ -21,19 +21,19 @@ def main():
 
 def reset_files():
     main_csv = open("main_csv.csv", 'w', encoding="utf-8")
-    main_csv.write("commit hash, committer name, file name, status, date\n")
+    main_csv.write("commithash; committername; filename; status; date\n")
     main_csv.close()
 
-    commit_hashes_csv = open("commit_hashes_csv.csv", 'w', encoding="utf-8")
-    commit_hashes_csv.write("commit hashes\n")
+    commit_hashes_csv = open("commit_hashes.csv", 'w', encoding="utf-8")
+    commit_hashes_csv.write("commithash\n")
     commit_hashes_csv.close()
 
-    unique_committer_names_csv = open("unique_committer_names_csv.csv", 'w', encoding="utf-8")
-    unique_committer_names_csv.write("committer names\n")
+    unique_committer_names_csv = open("committer_names.csv", 'w', encoding="utf-8")
+    unique_committer_names_csv.write("committername\n")
     unique_committer_names_csv.close()
 
-    unique_file_names_csv = open("unique_file_names_csv.csv", 'w', encoding="utf-8")
-    unique_file_names_csv.write("file names\n")
+    unique_file_names_csv = open("file_names.csv", 'w', encoding="utf-8")
+    unique_file_names_csv.write("filename\n")
     unique_file_names_csv.close()
 
 
@@ -57,7 +57,7 @@ def parse_commit(commit):
 
         main_csv = open("main_csv.csv", 'a', encoding="utf-8")
         for i in range(0, len(files), 2):
-            main_csv.write(commit_hash + "," + name + "," + files[i + 1] + "," + files[i] + "," + date + "\n")
+            main_csv.write(commit_hash + ";" + name + ";" + files[i + 1] + ";" + files[i] + ";" + date + "\n")
         main_csv.close()
 
 
@@ -73,17 +73,17 @@ def parse_files(files):
 
 
 def write_other_csv_files():
-    commit_hashes_csv = open("commit_hashes_csv.csv", 'a', encoding="utf-8")
+    commit_hashes_csv = open("commit_hashes.csv", 'a', encoding="utf-8")
     for i in unique_commit_hashes:
         commit_hashes_csv.write(i + "\n")
     commit_hashes_csv.close()
 
-    unique_committer_names_csv = open("unique_committer_names_csv.csv", 'a', encoding="utf-8")
+    unique_committer_names_csv = open("committer_names.csv", 'a', encoding="utf-8")
     for i in unique_committer_names:
         unique_committer_names_csv.write(i + "\n")
     unique_committer_names_csv.close()
 
-    unique_file_names_csv = open("unique_file_names_csv.csv", 'a', encoding="utf-8")
+    unique_file_names_csv = open("file_names.csv", 'a', encoding="utf-8")
     for i in unique_file_names:
         unique_file_names_csv.write(i + "\n")
     unique_file_names_csv.close()
