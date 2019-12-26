@@ -12,6 +12,7 @@ import javax.print.DocFlavor.URL;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.geometry.Side;
 import javafx.stage.Stage;
 import javafx.scene.Group;
@@ -24,6 +25,7 @@ import javafx.scene.chart.PieChart;
 import javafx.scene.chart.ScatterChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
  
  
@@ -73,6 +75,7 @@ public class Main extends Application {
 			          System.out.println(counter);
 			      }
 		          int count=0;
+		          
 		          for( String name:names){
 			         if(!authors.contains(name)){
 				         authors.add(name);
@@ -83,6 +86,7 @@ public class Main extends Application {
 			          for(String name:names){
 				          if(author.equals(name)){
 					           count++;
+					          
 				          }
 			          }
 			           commitCount.add(count);
@@ -96,8 +100,10 @@ public class Main extends Application {
                   PieChart.Data data[] = new PieChart.Data[authors.size()]; 
     
                   // string and integer data 
+                 
                   for (int i = 0; i <authors.size(); i++) { 
                        data[i] = new PieChart.Data(authors.get(i),commitCount.get(i)); 
+                      
                   } 
     
                   // create a pie chart 
@@ -105,9 +111,34 @@ public class Main extends Application {
                   
                   pie_chart.setLabelLineLength(0.5);
                   pie_chart.setLegendSide(Side.BOTTOM);
+                  
+                  
+                  Label caption =new Label("");
+                  
+                  for(PieChart.Data dat : pie_chart.getData()) {
+          			dat.getNode().addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+
+          				@Override
+          				public void handle(MouseEvent event) {
+          					double co=0;
+          					for(PieChart.Data da : pie_chart.getData()) {
+          						co = co + da.getPieValue();
+          					}
+          					int per = (int)((dat.getPieValue()*100)/co);
+          					
+          					caption.setTranslateX(event.getSceneX());
+          	                caption.setTranslateY(event.getSceneY());
+          	                
+          	                caption.setText(String.valueOf(per) + "%");
+          				}
+          				
+          			});
+          		}
              
                   // create a Group 
                  Group group = new Group(pie_chart); 
+                 group.getChildren().add(caption);
+                 
     
                   // create a scene 
                  Scene scene = new Scene(group, 600, 600); 
@@ -117,14 +148,7 @@ public class Main extends Application {
     
                  stage.show(); 
  
-      /*  ObservableList<PieChart.Data> pieChartData =
-                FXCollections.observableArrayList(
-                new PieChart.Data(Bükre, 13),
-                new PieChart.Data(Fatih, 25),
-                new PieChart.Data(Arman, 10),
-                new PieChart.Data(Ýbrahim, 22),
-                new PieChart.Data(Hasan, 30));
-        final PieChart chart = new PieChart(pieChartData); */
+    
         
     } 
  
@@ -135,4 +159,5 @@ public class Main extends Application {
         launch(args);
     }
 }
+
 
