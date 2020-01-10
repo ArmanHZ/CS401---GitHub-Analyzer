@@ -29,7 +29,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
  
  
-public class Main extends Application {
+public class CommitPieChart extends Application {
 	
 	
 	 private static  ArrayList <String> names = new ArrayList<String>();
@@ -44,9 +44,13 @@ public class Main extends Application {
 	
  
    @Override public void start(Stage stage) throws IOException  {
+	             
+	   // file text read and storage all authors name in arraylist that is "names"	   
 	              File file = new File("final_dump.txt");
 		          Scanner f = new Scanner(file);
-		          int counter = 0;
+		          
+		          int counter = 0; //insignificant
+		          
 		          while(f.hasNextLine()) {
 		        	  counter++;
 				      String commitHash = f.nextLine();
@@ -71,17 +75,19 @@ public class Main extends Application {
 				      String u= f.nextLine();
 				      counter++;
 				
-					System.out.println(name);
-			          System.out.println(counter);
+					//System.out.println(name);
+			        // System.out.println(counter);
 			      }
 		          int count=0;
 		          
+		          //simplifying authors name
 		          for( String name:names){
 			         if(!authors.contains(name)){
 				         authors.add(name);
 			         }
 		          }
 		 
+		          // for pie chart storage authors name and commit count 		         
 		          for(String author: authors){
 			          for(String name:names){
 				          if(author.equals(name)){
@@ -93,7 +99,7 @@ public class Main extends Application {
 		              //System.out.println("Occurrence of " + author + " is " + count + " times.");
 	                   count=0;
 		          }
-		 
+		          //visualization part
 		          stage.setTitle("Commited Lines");
        
                   // piechart data 
@@ -112,7 +118,7 @@ public class Main extends Application {
                   pie_chart.setLabelLineLength(0.5);
                   pie_chart.setLegendSide(Side.BOTTOM);
                   
-                  
+                  //mouse event and create label click on mause location
                   Label caption =new Label("");
                   
                   for(PieChart.Data dat : pie_chart.getData()) {
