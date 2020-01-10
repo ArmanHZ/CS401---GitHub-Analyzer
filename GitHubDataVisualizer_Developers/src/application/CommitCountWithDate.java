@@ -30,24 +30,29 @@ public class CommitCountWithDate extends Application {
 
 	@Override
 	public void start(Stage stage) throws IOException {
-		 File file = new File("final_dump.txt");
+		 //read and storage all name and dates in array list
+		File file = new File("final_dump.txt");		 
 		 Scanner f = new Scanner(file);
+		 
 		 while(f.hasNextLine()) {
 				String commitHash = f.nextLine();
 				String Author = f.next();
 				String  a = f.next();
 				String name = f.next();
 				names.add(name);
-			    String nameline = f.nextLine();
 			   
-				String x= f.nextLine();
+				String nameline = f.nextLine();
+			    String x= f.nextLine();
 				String dateline01 = f.next();
 				String dateline02 = f.next();
 				String dateline03 = f.next();
+				
 				String month = f.next();
 				String day = f.next();
+				
 				String date = name+" "+month +" "+day;
-				allDates.add(date);
+				allDates.add(date); // allDates include authors name
+				
 				String y= f.nextLine();
 				String z= f.nextLine();
 				String v= f.nextLine();
@@ -57,18 +62,21 @@ public class CommitCountWithDate extends Application {
 			//	System.out.println(date);
 	    }
 	    int count=0;
+	    
+	    //simplifiying authors name
 	    int totalcommit=0;
 	    for( String name:names){
 		     if(!authors.contains(name)){
 			     authors.add(name);
 		     }
 	    }
-	 
+	   //simplifiying date in date list
 	    for(String date:allDates){
 		    if(!dates.contains(date)){
 			 dates.add(date);
 		    }
 	    }
+	    //found maximum commit count
 	    int max=0;
         for(String date:dates){
 		    for(String alldate: allDates){
@@ -91,7 +99,7 @@ public class CommitCountWithDate extends Application {
         	System.out.println(all);
         } */
         
-	 
+	     // sperate date and name and commit count
 	     String [][] info  = new String[dates.size()][4];
 	     String [] x = new String[2];
 	
@@ -119,21 +127,26 @@ public class CommitCountWithDate extends Application {
 		    }
 	   }
 	 
-	    for(int i=0;i<info.length;i++){
+	   /* for(int i=0;i<info.length;i++){
 		    for(int j=0;j<info[0].length;j++){
 			    System.out.print(info[i][j]);
 		    }
 		        System.out.println(" ");
-	   } 
+	   } */
+	     
+	     //list view to the right of the page
 	    ListView listView = new ListView();
 	    
 	    for(String author:authors){
 	    	 listView.getItems().add(author);
 	    }
+	    
+	    //visualization 
 	    CategoryAxis xaxis = new CategoryAxis();  
 	    NumberAxis yaxis = new NumberAxis(0,max*2,1);  
 	    xaxis.setLabel("Date");  
 	    yaxis.setLabel("Commit Count");  
+	   
 	    //Creating StackedAreaChart   
 	    StackedAreaChart stack = new StackedAreaChart(xaxis,yaxis);  
 	    stack.setTitle("Commit Frequency by Date ");  
@@ -155,41 +168,31 @@ public class CommitCountWithDate extends Application {
 		    stack.setCreateSymbols(false);
 		    person.setName(name);  
 		   
-	   }
+	   } 
+	    //visualization for aouthor's name in list 
 	    listView.setOnMouseClicked(new EventHandler<MouseEvent>(){
 			@Override
 			public void handle(MouseEvent arg0) {
 			 stack.getData().clear();
-			 XYChart.Series person= new XYChart.Series();
+			 XYChart.Series person= new XYChart.Series<>();
 			for(int i=0;i<allinfo.size();i++){
 				
 				String[] data= allinfo.get(i).split(" ");
 				
+				//data [0] is a person name
 				if(listView.getSelectionModel().getSelectedItem().equals(data[0])){
-					  CategoryAxis xaxis = new CategoryAxis();  
+					    CategoryAxis xaxis = new CategoryAxis();  
 					    NumberAxis yaxis = new NumberAxis(0,50,1);  
 					    xaxis.setLabel("Date");  
 					    yaxis.setLabel("Commit Count");  
+					   
 					    //Creating StackedAreaChart   
 					    StackedAreaChart stack = new StackedAreaChart(xaxis,yaxis);  
 					    stack.setTitle("Commit Frequency by Date ");  
-							    
-					   
-							    
-					  
-							    
-						  
-							    	 
-							     person.getData().add(new XYChart.Data(data[1]+" "+data[2],Integer.valueOf(data[3])));
-							      
-								  
-							    
-						   // TODO Auto-generated method stub
-						    
-						  
-							       
-						   
-					   
+					    person.getData().add(new XYChart.Data(data[1]+" "+data[2],Integer.valueOf(data[3])));							      
+								  							    
+						   // TODO Auto-generated method stub						    
+						  							       						   					   
 				}
 				
 			}
@@ -233,4 +236,3 @@ public class CommitCountWithDate extends Application {
 	}
 
 }
-
