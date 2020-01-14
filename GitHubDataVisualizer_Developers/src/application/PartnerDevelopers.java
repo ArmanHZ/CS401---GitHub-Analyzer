@@ -58,9 +58,9 @@ public class PartnerDevelopers extends Application {
 
 	@Override
 	public void start(Stage stage) throws IOException {
-		 File file = new File("final_dump.txt");
-		 // Buffered reader
-		 Scanner f = new Scanner(file);
+		 
+		File file = new File("final_dump.txt");
+		Scanner f = new Scanner(file);
 		 while(f.hasNextLine()) {
 				String line1 = f.nextLine();
 				String Author = f.next();
@@ -93,7 +93,7 @@ public class PartnerDevelopers extends Application {
 		
 		 
 		 
-	
+	//authors's name's list
 	    for( String name:names){
 		     if(!authors.contains(name)){
 			     authors.add(name);
@@ -101,23 +101,25 @@ public class PartnerDevelopers extends Application {
 		     }
 	    }
 	  
-	 
-        
+	  
+	  
+        // this part split file names line but include "edited file"
         for(int i=0;i<filenamesline.size();i++){
-        	
-        	
         	String [] filename =filenamesline.get(i).split(",");
         		
         	for(int j=0;j<filename.length;j++){
-        	
-        				filenamesUseless.add(filename[j]);
+        	    filenamesUseless.add(filename[j]);
         			
            }
         	
         }	
+      //control part
        // for(String filename:filenamesUseless){
        // System.out.println(filename);
        // }
+        
+        
+        //this part include all file names 
         for(int i=0;i<filenamesUseless.size();i++){
         	String [] filename = filenamesUseless.get(i).split("Edited files:");
         	for(int j=0;j<filename.length;j++){
@@ -128,62 +130,54 @@ public class PartnerDevelopers extends Application {
         	
         	
         }
-       
+       // for each filename used only once
         for(String filename:allfilenames){
 		    if(!filenames.contains(filename)){
 			 filenames.add(filename);
 		    }
 	    }
         
-    /*   int co=0;
-       for(String filename:filenames){
-       for(String allfilename:allfilenames){
-    	   
-    	   if(filename.equals(allfilename)){
-    		   co++;
-    	   }
-    	   }
-       System.out.println(co+" "+filename);
-       co=0;
-       } */
-        
+  
     
       
-        
-   	              int count =0;
+        //this part create filechangeinfos that includes author name, file name and count of edits of this file
+   	           int count =0;
    	           for(String name:authors){
-		        for(String filename:filenames){
+		           for(String filename:filenames){
 		        
-					 for(int i=0; i<filesinfo.size();i++){
-						 String [] fileinfoarray =filesinfo.get(i).split(" ");
+					    for(int i=0; i<filesinfo.size();i++){
+						     String [] fileinfoarray =filesinfo.get(i).split(" ");
 					    
-						 for(int j=3;j<fileinfoarray.length;j++){
-					        if(filename.equals(" "+fileinfoarray[j]) && name.equals(fileinfoarray[0])){
-						       count++;
-					        }
-					        else if((filename+",").equals(" "+fileinfoarray[j]) && name.equals(fileinfoarray[0])){
-					        	count++;
-					        }
-				         }
+						       for(int j=3;j<fileinfoarray.length;j++){
+					                if(filename.equals(" "+fileinfoarray[j]) && name.equals(fileinfoarray[0])){
+						               count++;
+					                }
+					                  else if((filename+",").equals(" "+fileinfoarray[j]) && name.equals(fileinfoarray[0])){
+					        	         count++;
+					                  }
+				                }
 					   
-			          }
-				 
-					  // System.out.println(name+" "+filename +" "+ count);
-					 if( count !=0 ){
-					  fileChangeInfos.add(name+" "+filename+" "+count);
-					 }
-			          count=0;
+			             }
+					    //System.out.println(name+" "+filename +" "+ count);
+					    
+					    //for exclude those whose file edit count are zero
+					    if( count !=0 ){
+					     fileChangeInfos.add(name+" "+filename+" "+count);
+					    }
+			            count=0;
 		     
-			    }
-   	          }
+			      }
+   	           }
     
         	
      
-        		
+   	      //control part
         /*	for(String filechangeinfo:fileChangeInfos){
         		System.out.println(filechangeinfo);
         	} */
-        	
+   	           
+   	           
+        	//this part create pair developer list, count number is minumum changed 
         	int counter =0;
         	for(int i=0;i<fileChangeInfos.size();i++){
         		String [] fileinfoarray = fileChangeInfos.get(i).split(" ");
@@ -193,8 +187,13 @@ public class PartnerDevelopers extends Application {
             		
             		if(!fileinfoarray[0].equals(fileinfoarray2[0]) && fileinfoarray[2].equals(fileinfoarray2[2])){
             			
-            			counter++;
-            			System.out.println(fileinfoarray[0]+" "+fileinfoarray2[0]+" "+counter+ " " +fileinfoarray[2]);
+            			if(Integer.valueOf(fileinfoarray[3])<Integer.valueOf(fileinfoarray2[3])){
+            				counter=Integer.valueOf(fileinfoarray[3]);
+            			}else{
+            				counter=Integer.valueOf(fileinfoarray2[3]);
+            			}
+            			//control part
+            			//System.out.println(fileinfoarray[0]+" "+fileinfoarray2[0]+" "+counter+ " " +fileinfoarray[2]);
             			PairPersonsFile.add(fileinfoarray[0]+" "+fileinfoarray2[0]+" "+fileinfoarray[2]+" "+counter);
             		}
             		
@@ -207,8 +206,9 @@ public class PartnerDevelopers extends Application {
         		counter=0;
         		
         	}
+        	//total of all changes files add in PairPersonFileTotal list
         	 int commonFileCount=0;
-        	for(int i=0; i<PairPersonsFile.size();i++){
+        	 for(int i=0; i<PairPersonsFile.size();i++){
         		String [] pairPerson= PairPersonsFile.get(i).split(" ");
         		for(int j =0;j<PairPersonsFile.size();j++){
         			String [] pairPerson2 =PairPersonsFile.get(j).split(" ");
@@ -223,28 +223,33 @@ public class PartnerDevelopers extends Application {
         		commonFileCount=0;
         		
         	}
+        	 // for each information to be found only once 
         	for(String info :PairPersonsFileTotal){
         		if(!PairPersonsFileTotalS.contains(info)){
         			PairPersonsFileTotalS.add(info);
         		}
         	}
         	
-        	for(String info :PairPersonsFileTotalS ){
+        	//control part
+        /*	for(String info :PairPersonsFileTotalS ){
         		
         		System.out.println(info);
-        	} 
+        	} */
         
+        	//add in hashmap 
         	for(int i=0;i<PairPersonsFileTotalS.size();i++){
-        	String [] pairPerson= PairPersonsFileTotalS.get(i).split(" ");
-        	PartnerPerson.put(pairPerson[0]+","+pairPerson[1],Integer.valueOf(pairPerson[2]));
-        	PartnerPerson2.put(pairPerson[1]+","+pairPerson[0],Integer.valueOf(pairPerson[2]));	
+        	    String [] pairPerson= PairPersonsFileTotalS.get(i).split(" ");
+        	    PartnerPerson.put(pairPerson[0]+","+pairPerson[1],Integer.valueOf(pairPerson[2]));
+        	    PartnerPerson2.put(pairPerson[1]+","+pairPerson[0],Integer.valueOf(pairPerson[2]));	
         		
         	}
         	
+        	//controls part
        /* 	for(Entry<String, Integer> pairs : PartnerPerson.entrySet()) {
                 System.out.println(pairs);
        } */
         	
+        	//hasmap sort        	
         	 Map<String, Integer> sorted = PartnerPerson
              		.entrySet()
                      .stream()
@@ -265,6 +270,7 @@ public class PartnerDevelopers extends Application {
                         DevelopersNames.add(DevelopersName[1]);
                         
                }
+                 //simplifying developer names for appearance when sorted
                 	for(String developer:DevelopersNames){
          		    if(!Developers.contains(developer)){
          			 Developers.add(developer);
@@ -276,7 +282,7 @@ public class PartnerDevelopers extends Application {
         
        
 	
-	   
+	   //visualation part
 	 
       stage.setTitle("GridPane Experiment");
       Label label1 = new Label();
@@ -288,7 +294,7 @@ public class PartnerDevelopers extends Application {
         
         GridPane gridPane = new GridPane();
     
-           
+          //first horizontal and vertical label add developers name  
         for(int i=0;i<=authors.size();i++){
         	
         	for(int j=0;j<=authors.size();j++){
@@ -305,16 +311,14 @@ public class PartnerDevelopers extends Application {
      	         label.setMinSize(20, 20);
      	         
         	 }else if(j==0 && i>0){
-        		// label.setText(authors.get(i-1));
-        		// label.setMinSize(10, 10);
-     	        // label.setRotate(-45);
+        		
         		 label.setText("");
         		 VerticalLabel columnNames = new VerticalLabel(VerticalDirection.UP);
                  columnNames.setText(authors.get(i-1));
                  columnNames.setMinHeight(Region.USE_PREF_SIZE);
                  gridPane.add(columnNames, i, 0);
         	 }
-        	 else if(i>0 && j>0){
+        	 else if(i>0 && j>0){    // place common file change part
         		String name1= authors.get(i-1);
          		String name2= authors.get(j-1);
          		String finalname = name1+","+name2;
@@ -325,7 +329,7 @@ public class PartnerDevelopers extends Application {
          			 if(finalname.equals(pairPerson[0]+","+pairPerson[1])){
          				int value=PartnerPerson.get(finalname);
          				
-         				 if(label.getText().equals(finalname)){
+         				 if(label.getText().equals(finalname)){  //colored part
          					 label.setText(""+value);
          					int red = value * 20;
          			        int green = 255 - (value * 10);
@@ -335,14 +339,16 @@ public class PartnerDevelopers extends Application {
          			        label.setMinSize(20, 20);
          			        label.setOnMouseClicked(new EventHandler<MouseEvent>() {
             			         @Override
-            			           public void handle(MouseEvent e) {
+            			           public void handle(MouseEvent e) {  // click in number list visualation 
             			        	 listView.getItems().clear();
-            			        	 
+            			        	
             			        	 for (int i=0; i<PairPersonsFile.size(); i++){
             			        	 String[] filenames =PairPersonsFile.get(i).split(" ");
+            			        	
             			        	 if(finalname.equals(filenames[0]+","+filenames[1])){
-            			        		 listView.getItems().add(filenames[2]+" - "+filenames[3]);
+            			        		 listView.getItems().add(filenames[2]+" + "+filenames[3]);
             			        	 }
+            			        	 
             			        	 }
             			        	 
             			            
@@ -369,7 +375,7 @@ public class PartnerDevelopers extends Application {
            			        	 for (int i=0; i<PairPersonsFile.size(); i++){
            			        	 String[] filenames =PairPersonsFile.get(i).split(" ");
            			        	 if(finalname.equals(filenames[1]+","+filenames[0])){
-           			        		 listView.getItems().add(filenames[2]+" - "+filenames[3]);
+           			        		 listView.getItems().add(filenames[2]+" + "+filenames[3]);
            			        	 }
            			        	 }
            			        	 
@@ -394,7 +400,7 @@ public class PartnerDevelopers extends Application {
         	 }  else if(i==0 && j==0){
         		 Button btn = new Button();
       	        btn.setText(" SORT ");
-      	        btn.setOnAction(new EventHandler<ActionEvent>() {
+      	        btn.setOnAction(new EventHandler<ActionEvent>() { //click soert button
       	            @Override
       	            public void handle(ActionEvent event) {
       	            	 GridPane gridPane = new GridPane();
@@ -452,7 +458,7 @@ public class PartnerDevelopers extends Application {
       	              			        	 for (int i=0; i<PairPersonsFile.size(); i++){
       	              			        	 String[] filenames =PairPersonsFile.get(i).split(" ");
       	              			        	 if(finalname.equals(filenames[0]+","+filenames[1])){
-      	              			        		 listView.getItems().add(filenames[2]+" - "+filenames[3]);
+      	              			        		 listView.getItems().add(filenames[2]+" + "+filenames[3]);
       	              			        	 }
       	              			        	 }
       	              			        	 
@@ -479,7 +485,7 @@ public class PartnerDevelopers extends Application {
       	               			        	 for (int i=0; i<PairPersonsFile.size(); i++){
       	               			        	 String[] filenames =PairPersonsFile.get(i).split(" ");
       	               			        	 if(finalname.equals(filenames[1]+","+filenames[0])){
-      	               			        		 listView.getItems().add(filenames[2]+" - "+filenames[3]);
+      	               			        		 listView.getItems().add(filenames[2]+" + "+filenames[3]);
       	               			        	 }
       	               			        	 }
       	               			        	 
@@ -511,6 +517,8 @@ public class PartnerDevelopers extends Application {
         	 }
         	
         }
+      	                
+      	                
       	            gridPane.setAlignment(Pos.CENTER);
       	            gridPane.setLayoutX(10);
       	            gridPane.setLayoutY(10);
@@ -539,6 +547,7 @@ public class PartnerDevelopers extends Application {
       	            stage.show();
      	            }
      	        });
+      	        btn.setStyle("-fx-background-color: red ; -fx-border-color: black;");
      	        gridPane.add(btn, i, j,1,1);
      	        
      	 }
@@ -552,7 +561,10 @@ public class PartnerDevelopers extends Application {
            }
           
        
-             
+          
+           
+         
+        
         gridPane.setAlignment(Pos.CENTER);
         gridPane.setLayoutX(10);
         gridPane.setLayoutY(10);
@@ -569,6 +581,7 @@ public class PartnerDevelopers extends Application {
         listView.setLayoutX(500);
         listView.setLayoutY(50);
         //VBox vBox = new VBox(listView, gridPane);
+      
         
         Group group = new Group();
         group.getChildren().add(gridPane);
@@ -585,4 +598,3 @@ public class PartnerDevelopers extends Application {
 	}
 
 }
-
