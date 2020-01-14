@@ -21,7 +21,7 @@ def main():
 
 def reset_files():
     main_csv = open("main_csv.csv", 'w', encoding="utf-8")
-    main_csv.write("commithash; committername; filename; status; date\n")
+    main_csv.write("commithash;committername;filename;status;date\n")
     main_csv.close()
 
     commit_hashes_csv = open("commit_hashes.csv", 'w', encoding="utf-8")
