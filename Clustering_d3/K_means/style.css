@@ -1,0 +1,97 @@
+text {
+    font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+}
+  
+svg {
+    width: 100%;
+}
+  
+.link line {
+    stroke: #aaa;
+    fill: red;
+}
+  
+.node circle {
+    stroke: rgb(0, 0, 0);
+    fill: rgb(170, 57, 214);
+    stroke-width: 1px;
+}
+
+.sidenav {
+    height: 100%;
+    width: 0;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: rgb(31, 29, 29);
+    overflow-x: hidden;
+    transition: 0.5s;
+    padding-top: 60px;
+    text-align: center;
+  }
+  
+  .sidenav a {
+    padding: 8px 8px 8px 8px;
+    text-decoration: none;
+    font-size: 25px;
+    color: #ffffff;
+    display: block;
+    transition: 0.3s;
+  }
+
+  .sidenav p {
+    margin: 5px;
+    padding: 8px 8px 8px 8px;
+    text-decoration: none;
+    font-size: 25px;
+    color: #ffffff;
+    display: block;
+    transition: 0.3s;
+  }
+
+  .sidenav button {
+    border: 2px black;
+    margin: 5px;
+    padding: 8px 8px 8px 8px;
+    text-decoration: none;
+    font-size: 14px;
+    color: black;
+    background-color: #aaa;
+    display: inline-block;
+  }
+
+  .sidenav button:active {
+    border: 2px black;
+    margin: 5px;
+    padding: 8px 8px 8px 8px;
+    text-decoration: none;
+    font-size: 14px;
+    color: black;
+    background-color: #aaa;
+    display: inline-block;
+    transform: translateY(4px);
+  }
+
+  .sidenav input {
+    margin: auto;
+    padding: 8px 8px 8px 8px;
+    display: block;
+  }
+  
+  .sidenav a:hover {
+    color: #f1f1f1;
+  }
+  
+  .sidenav .closebtn {
+    position: absolute;
+    top: 0;
+    right: 25px;
+    font-size: 36px;
+    margin-left: 50px;
+  }
+  
+  @media screen and (max-height: 450px) {
+    .sidenav {padding-top: 15px;}
+    .sidenav a {font-size: 18px;}
+  }
