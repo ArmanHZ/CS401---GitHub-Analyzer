@@ -39,84 +39,99 @@ var simulation = d3.forceSimulation()
 
 let nodes;
 let links;
+var toBeFilteredNodes = [];
+var toBeFilteredLinks = [];
 
-function initializeNodes() {
-    d3.json("data.json", function (error, graph) {
-        if (error) throw error;
+initializeNodes = () => d3.json("data.json", function (error, graph) {
+    if (error) throw error;
 
-        nodes = [
-            { "id": "Alice" },
-            { "id": "Bob" },
-            { "id": "Carol" },
-            { "id": "James" }
-        ];
+    nodes = [
+        { "id": "Alice" },
+        { "id": "Bob" },
+        { "id": "Carol" },
+        { "id": "James" }
+    ];
 
-        links = [
-            { "source": "Alice", "target": "Bob" },
-            { "source": "Bob", "target": "Carol" },
-            { "source": "Alice", "target": "James" }
-        ];
+    links = [
+        { "source": "Alice", "target": "Bob" },
+        { "source": "Bob", "target": "Carol" },
+        { "source": "Alice", "target": "James" }
+    ];
 
-        // nodes = graph.nodes;
-        // links = graph.links;
+    // nodes = graph.nodes;
+    // links = graph.links;
+});
 
-        var link = svg.append("g")
-            .attr("class", "link")
-            .selectAll("line")
-            .data(links)
-            .enter().append("line");
+initializeNodes();
 
-        var node = svg.append("g")
-            .attr("class", "node")
-            .selectAll("circle")
-            .data(nodes)
-            .enter().append("circle")
-            .attr("r", 7)
-            .call(d3.drag()
-                .on("start", dragstarted)
-                .on("drag", dragged)
-                .on("end", dragended));
+function drawNodes() {
+    if (toBeFilteredNodes.length == 0) {
+        var confirmBox = confirm("Filter list is empty.\nDo you want to draw the entire data?");
+        if (!confirmBox)
+            return;
+        else {
+            var link = svg.append("g")
+                .attr("class", "link")
+                .selectAll("line")
+                .data(links)
+                .enter().append("line");
 
-        node.append("title")
-            .text(function (d) {
-                finalString = d.id + "\n\nConnected to:\n";
-                d3.selectAll("line").filter(function (line) {
-                    if (d.id == line.source) {
-                        finalString += line.target + "\n";
-                    }
-                })
-                return finalString;
-            });
+            var node = svg.append("g")
+                .attr("class", "node")
+                .selectAll("circle")
+                .data(nodes)
+                .enter().append("circle")
+                .attr("r", 7)
+                .call(d3.drag()
+                    .on("start", dragstarted)
+                    .on("drag", dragged)
+                    .on("end", dragended));
 
-        node.on("mouseover", mouseoverNode);
-        node.on("mouseout", mouseoutNode);
-        node.on("click", mouseclickNode);
+            node.append("title")
+                .text(function (d) {
+                    finalString = d.id + "\n\nConnected to:\n";
+                    d3.selectAll("line").filter(function (line) {
+                        if (d.id == line.source) {
+                            finalString += line.target + "\n";
+                        }
+                    })
+                    return finalString;
+                });
 
-        simulation
-            .nodes(nodes)
-            .on("tick", ticked);
+            node.on("mouseover", mouseoverNode);
+            node.on("mouseout", mouseoutNode);
+            node.on("click", mouseclickNode);
 
-        simulation.force("link")
-            .links(links);
+            simulation
+                .nodes(nodes)
+                .on("tick", ticked);
 
-        function ticked() {
-            link
-                .attr("x1", function (d) { return d.source.x; })
-                .attr("y1", function (d) { return d.source.y; })
-                .attr("x2", function (d) { return d.target.x; })
-                .attr("y2", function (d) { return d.target.y; });
+            simulation.force("link")
+                .links(links);
 
-            node
-                .attr("cx", function (d) { return d.x; })
-                .attr("cy", function (d) { return d.y; });
+            function ticked() {
+                link
+                    .attr("x1", function (d) { return d.source.x; })
+                    .attr("y1", function (d) { return d.source.y; })
+                    .attr("x2", function (d) { return d.target.x; })
+                    .attr("y2", function (d) { return d.target.y; });
+
+                node
+                    .attr("cx", function (d) { return d.x; })
+                    .attr("cy", function (d) { return d.y; });
+            }
         }
+    } else {    // Draw the items in the filter list
+        console.log("test");
+    }
 
-    });
 }
 
 function removeNodes() {
     d3.selectAll("circle").remove();
     d3.selectAll("line").remove();
+    toBeFilteredNodes = [];
+    toBeFilteredLinks = [];
 }
 
 function dragstarted(d) {
@@ -168,28 +183,50 @@ function mouseclickNode(d) {
     document.getElementById("nodeInputArea").value = d.id;
 }
 
-var toBeFilteredItems = [];
+// function addNodeClicked() {
+//     var nodeName = document.getElementById("nodeInputArea").value;
+//     var pItem = document.createElement("p");
+//     var textnode = document.createTextNode(nodeName);
+//     pItem.appendChild(textnode);
+//     document.getElementById("mySidenav").appendChild(pItem);
+//     toBeFilteredNodes.push(nodeName);
+// }
 
 function addNodeClicked() {
     var nodeName = document.getElementById("nodeInputArea").value;
-    var pItem = document.createElement("p");
-    var textnode = document.createTextNode(nodeName);
-    pItem.appendChild(textnode);
-    document.getElementById("mySidenav").appendChild(pItem);
-    toBeFilteredItems.push(nodeName);
+    let nodeAsJson;
+    var elementExists = false;
+    for (let i = 0; i < nodes.length; i++) {
+        if (nodes[i].id == nodeName) {
+            elementExists = true;
+            nodeAsJson = nodes[i];
+            break;
+        }
+    }
+    if (!elementExists) {
+        window.alert(nodeName + " does not exists in the data folder!");
+        return;
+    }
+    else if (!toBeFilteredNodes.includes(nodeAsJson)) {
+        toBeFilteredNodes.push(nodeAsJson);
+        for (let i = 0; i < links.length; i++) {  // Add the links too.
+            if (links[i].source == nodeName)
+                toBeFilteredLinks.push(links[i]);
+        }
+    }
 }
 
 function applyFilterClicked() {
     var linesOfToBeFilteredItems = [];
     var targetNodes = [];
     d3.selectAll("line").filter(function (line) {
-        if (toBeFilteredItems.includes(line.source.id)) {
+        if (toBeFilteredNodes.includes(line.source.id)) {
             linesOfToBeFilteredItems.push(line);
             targetNodes.push(line.target.id);
         }
     });
     d3.selectAll("circle").filter(function (node) {
-        if (!toBeFilteredItems.includes(node.id) && !targetNodes.includes(node.id))
+        if (!toBeFilteredNodes.includes(node.id) && !targetNodes.includes(node.id))
             return node;
     }).style("opacity", "0");
     d3.selectAll("line").filter(function (line) {
