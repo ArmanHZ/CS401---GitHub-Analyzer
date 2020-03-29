@@ -14,12 +14,11 @@ var svg = d3.select("body")
     .append("svg")
     .attr("width", width)
     .attr("height", height)
-    .append('g')
     .attr('transform', 'translate(' + margin.top + ',' + margin.left + ')')
     .call(d3.zoom().on("zoom", function () {
         svg.attr("transform", d3.event.transform)
-     }))
-     .append("g");
+    }))
+    .append("g");
 
 width = width - margin.left - margin.right;
 height = height - margin.top - margin.bottom;
@@ -41,78 +40,84 @@ var simulation = d3.forceSimulation()
 let nodes;
 let links;
 
-// initialize nodes and links arrays
-d3.json("data.json", function (error, graph) {
-    if (error) throw error;
+function initializeNodes() {
+    d3.json("data.json", function (error, graph) {
+        if (error) throw error;
 
-    // nodes = [
-    //     { "id": "Alice" },
-    //     { "id": "Bob" },
-    //     { "id": "Carol" },
-    //     { "id": "James" }
-    // ];
+        nodes = [
+            { "id": "Alice" },
+            { "id": "Bob" },
+            { "id": "Carol" },
+            { "id": "James" }
+        ];
 
-    // links = [
-    //     { "source": "Alice", "target": "Bob" },
-    //     { "source": "Bob", "target": "Carol" },
-    //     { "source": "Alice", "target": "James" }
-    // ];
+        links = [
+            { "source": "Alice", "target": "Bob" },
+            { "source": "Bob", "target": "Carol" },
+            { "source": "Alice", "target": "James" }
+        ];
 
-    nodes = graph.nodes;
-    links = graph.links;
+        // nodes = graph.nodes;
+        // links = graph.links;
 
-    var link = svg.append("g")
-        .attr("class", "link")
-        .selectAll("line")
-        .data(links)
-        .enter().append("line");
+        var link = svg.append("g")
+            .attr("class", "link")
+            .selectAll("line")
+            .data(links)
+            .enter().append("line");
 
-    var node = svg.append("g")
-        .attr("class", "node")
-        .selectAll("circle")
-        .data(nodes)
-        .enter().append("circle")
-        .attr("r", 7)
-        .call(d3.drag()
-            .on("start", dragstarted)
-            .on("drag", dragged)
-            .on("end", dragended));
+        var node = svg.append("g")
+            .attr("class", "node")
+            .selectAll("circle")
+            .data(nodes)
+            .enter().append("circle")
+            .attr("r", 7)
+            .call(d3.drag()
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended));
 
-    node.append("title")
-        .text(function (d) {
-            finalString = d.id + "\n\nConnected to:\n";
-            d3.selectAll("line").filter(function (line) {
-                if (d.id == line.source) {
-                    finalString += line.target + "\n";
-                }
-            })
-            return finalString;
-        });
+        node.append("title")
+            .text(function (d) {
+                finalString = d.id + "\n\nConnected to:\n";
+                d3.selectAll("line").filter(function (line) {
+                    if (d.id == line.source) {
+                        finalString += line.target + "\n";
+                    }
+                })
+                return finalString;
+            });
 
-    node.on("mouseover", mouseoverNode);
-    node.on("mouseout", mouseoutNode);
-    node.on("click", mouseclickNode);
+        node.on("mouseover", mouseoverNode);
+        node.on("mouseout", mouseoutNode);
+        node.on("click", mouseclickNode);
 
-    simulation
-        .nodes(nodes)
-        .on("tick", ticked);
+        simulation
+            .nodes(nodes)
+            .on("tick", ticked);
 
-    simulation.force("link")
-        .links(links);
+        simulation.force("link")
+            .links(links);
 
-    function ticked() {
-        link
-            .attr("x1", function (d) { return d.source.x; })
-            .attr("y1", function (d) { return d.source.y; })
-            .attr("x2", function (d) { return d.target.x; })
-            .attr("y2", function (d) { return d.target.y; });
+        function ticked() {
+            link
+                .attr("x1", function (d) { return d.source.x; })
+                .attr("y1", function (d) { return d.source.y; })
+                .attr("x2", function (d) { return d.target.x; })
+                .attr("y2", function (d) { return d.target.y; });
 
-        node
-            .attr("cx", function (d) { return d.x; })
-            .attr("cy", function (d) { return d.y; });
-    }
+            node
+                .attr("cx", function (d) { return d.x; })
+                .attr("cy", function (d) { return d.y; });
+        }
 
-});
+    });
+}
+
+function removeNodes() {
+    d3.selectAll("circle").remove();
+    d3.selectAll("line").remove();
+}
 
 function dragstarted(d) {
     if (!d3.event.active) simulation.alphaTarget(0.3).restart();
@@ -132,24 +137,26 @@ function dragended(d) {
 }
 
 function mouseoverNode(d) {
-    var targetNodes = [d.id]
-    var targetLines = []
-    // targetNodes.push(d.id);
-    d3.selectAll("line").filter(function (line) {
-        if (line.source.id == d.id) {
-            targetNodes.push(line.target.id);
-            targetLines.push(line);
-        }
-    });
-    d3.selectAll("circle").filter(function (node) {
-        if (!targetNodes.includes(node.id))
-            return node.id;
-    }).style("opacity", "0");
+    if (d3.event.shiftKey) {
+        var targetNodes = [d.id];
+        var targetLines = [];
+        // targetNodes.push(d.id);
+        d3.selectAll("line").filter(function (line) {
+            if (line.source.id == d.id) {
+                targetNodes.push(line.target.id);
+                targetLines.push(line);
+            }
+        });
+        d3.selectAll("circle").filter(function (node) {
+            if (!targetNodes.includes(node.id))
+                return node.id;
+        }).style("opacity", "0");
 
-    d3.selectAll("line").filter(function (line) {
-        if (!targetLines.includes(line))
-            return line;
-    }).style("opacity", "0");
+        d3.selectAll("line").filter(function (line) {
+            if (!targetLines.includes(line))
+                return line;
+        }).style("opacity", "0");
+    }
 }
 
 function mouseoutNode(d) {
@@ -176,7 +183,7 @@ function applyFilterClicked() {
     var linesOfToBeFilteredItems = [];
     var targetNodes = [];
     d3.selectAll("line").filter(function (line) {
-        if (toBeFilteredItems.includes(line.source.id)){
+        if (toBeFilteredItems.includes(line.source.id)) {
             linesOfToBeFilteredItems.push(line);
             targetNodes.push(line.target.id);
         }
