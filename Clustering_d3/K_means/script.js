@@ -41,6 +41,7 @@ let nodes;
 let links;
 var toBeFilteredNodes = [];
 var toBeFilteredLinks = [];
+var targetNodesOfFilteredNodes = [];
 
 initializeNodes = () => d3.json("data.json", function (error, graph) {
     if (error) throw error;
@@ -121,17 +122,19 @@ function drawNodes() {
                     .attr("cy", function (d) { return d.y; });
             }
         }
-    } else {    // Draw the items in the filter list
-        console.log("test");
+    } else {
+        applyFilterClicked();
     }
-
 }
 
 function removeNodes() {
     d3.selectAll("circle").remove();
     d3.selectAll("line").remove();
-    toBeFilteredNodes = [];
-    toBeFilteredLinks = [];
+    toBeFilteredNodes.length = 0;
+    toBeFilteredLinks.length = 0;
+    targetNodesOfFilteredNodes.length = 0;
+    initializeNodes();
+    window.alert("Arrays cleared!");
 }
 
 function dragstarted(d) {
@@ -155,7 +158,6 @@ function mouseoverNode(d) {
     if (d3.event.shiftKey) {
         var targetNodes = [d.id];
         var targetLines = [];
-        // targetNodes.push(d.id);
         d3.selectAll("line").filter(function (line) {
             if (line.source.id == d.id) {
                 targetNodes.push(line.target.id);
@@ -183,55 +185,114 @@ function mouseclickNode(d) {
     document.getElementById("nodeInputArea").value = d.id;
 }
 
-// function addNodeClicked() {
-//     var nodeName = document.getElementById("nodeInputArea").value;
-//     var pItem = document.createElement("p");
-//     var textnode = document.createTextNode(nodeName);
-//     pItem.appendChild(textnode);
-//     document.getElementById("mySidenav").appendChild(pItem);
-//     toBeFilteredNodes.push(nodeName);
-// }
-
 function addNodeClicked() {
+    addNodeIfNotExists();
+    findTheLinks(); // Links of the added nodes of the previous function.
+    addTargetNodes();
+
+    // console.log(toBeFilteredNodes);
+    // console.log(toBeFilteredLinks);
+}
+
+function addNodeIfNotExists() {
     var nodeName = document.getElementById("nodeInputArea").value;
-    let nodeAsJson;
-    var elementExists = false;
+    var nodeAsJson = { "id": nodeName };
     for (let i = 0; i < nodes.length; i++) {
-        if (nodes[i].id == nodeName) {
-            elementExists = true;
-            nodeAsJson = nodes[i];
-            break;
+        if (JSON.stringify(nodes[i]) === JSON.stringify(nodeAsJson)) {
+            if (!existsInToBeFilteredNodes(nodes[i]))
+                toBeFilteredNodes.push(nodes[i]);
         }
     }
-    if (!elementExists) {
-        window.alert(nodeName + " does not exists in the data folder!");
-        return;
+}
+
+function existsInToBeFilteredNodes(node) {
+    for (let i = 0; i < toBeFilteredNodes.length; i++) {
+        if (JSON.stringify(toBeFilteredNodes[i]) === JSON.stringify(node))
+            return true;
     }
-    else if (!toBeFilteredNodes.includes(nodeAsJson)) {
-        toBeFilteredNodes.push(nodeAsJson);
-        for (let i = 0; i < links.length; i++) {  // Add the links too.
-            if (links[i].source == nodeName)
-                toBeFilteredLinks.push(links[i]);
+    return false;
+}
+
+function findTheLinks() {
+    for (let i = 0; i < toBeFilteredNodes.length; i++) {
+        for (let j = 0; j < links.length; j++) {
+            if (toBeFilteredNodes[i].id == links[j].source) {
+                var linkAsJson = links[j];
+                if (!existsInToBeFilteredLinks(linkAsJson))
+                    toBeFilteredLinks.push(linkAsJson);
+            }
+        }
+    }
+}
+
+function existsInToBeFilteredLinks(link) {
+    for (let i = 0; i < toBeFilteredLinks.length; i++) {
+        if (JSON.stringify(toBeFilteredLinks[i]) === JSON.stringify(link))
+            return true;
+    }
+    return false;
+}
+
+function addTargetNodes() {
+    for (let i = 0; i < toBeFilteredLinks.length; i++) {
+        var targetNodeAsJson = { "id": toBeFilteredLinks[i].target };
+        console.log(targetNodeAsJson);
+        if (!existsInToBeFilteredNodes(targetNodeAsJson)) {
+            console.log(targetNodeAsJson + " does not exist");
+            toBeFilteredNodes.push(targetNodeAsJson);
         }
     }
 }
 
 function applyFilterClicked() {
-    var linesOfToBeFilteredItems = [];
-    var targetNodes = [];
-    d3.selectAll("line").filter(function (line) {
-        if (toBeFilteredNodes.includes(line.source.id)) {
-            linesOfToBeFilteredItems.push(line);
-            targetNodes.push(line.target.id);
-        }
-    });
-    d3.selectAll("circle").filter(function (node) {
-        if (!toBeFilteredNodes.includes(node.id) && !targetNodes.includes(node.id))
-            return node;
-    }).style("opacity", "0");
-    d3.selectAll("line").filter(function (line) {
-        if (!linesOfToBeFilteredItems.includes(line))
-            return line;
-    }).style("opacity", "0");
-    console.log(linesOfToBeFilteredItems);
+    var link = svg.append("g")
+        .attr("class", "link")
+        .selectAll("line")
+        .data(toBeFilteredLinks)
+        .enter().append("line");
+
+    var node = svg.append("g")
+        .attr("class", "node")
+        .selectAll("circle")
+        .data(toBeFilteredNodes)
+        .enter().append("circle")
+        .attr("r", 7)
+        .call(d3.drag()
+            .on("start", dragstarted)
+            .on("drag", dragged)
+            .on("end", dragended));
+
+    node.append("title")
+        .text(function (d) {
+            finalString = d.id + "\n\nConnected to:\n";
+            d3.selectAll("line").filter(function (line) {
+                if (d.id == line.source) {
+                    finalString += line.target + "\n";
+                }
+            })
+            return finalString;
+        });
+
+    node.on("mouseover", mouseoverNode);
+    node.on("mouseout", mouseoutNode);
+    node.on("click", mouseclickNode);
+
+    simulation
+        .nodes(toBeFilteredNodes)
+        .on("tick", ticked);
+
+    simulation.force("link")
+        .links(toBeFilteredLinks);
+
+    function ticked() {
+        link
+            .attr("x1", function (d) { return d.source.x; })
+            .attr("y1", function (d) { return d.source.y; })
+            .attr("x2", function (d) { return d.target.x; })
+            .attr("y2", function (d) { return d.target.y; });
+
+        node
+            .attr("cx", function (d) { return d.x; })
+            .attr("cy", function (d) { return d.y; });
+    }
 }
