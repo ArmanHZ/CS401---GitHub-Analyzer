@@ -15,9 +15,13 @@
         <button type="button" onclick="drawNodes()">Draw Nodes</button>
         <button type="button" onclick="removeNodes()">Remove Nodes</button><br>
         <p id="addNode">Add node to filter</p>
-        <input id="nodeInputArea" type="text"><br>
-        <button type="button" onclick="addNodeClicked()">Add node</button>
-        <!-- <button type="button" onclick="applyFilterClicked()">Apply Filter</button> -->
+
+        <form autocomplete="off">
+            <div class="autocomplete">
+                <input id="nodeInput" type="text" placeholder="File name">
+            </div>
+            <button type="button" onclick="addNodeClicked()">Add node</button>
+        </form>
     </div>
 
     <span style="font-size:30px;cursor:pointer" onclick="openNav()">&#9776; Settings</span>
