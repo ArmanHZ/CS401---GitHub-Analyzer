@@ -49,22 +49,22 @@ initializeNodes = () => d3.json("data.json", function (error, graph) {
     if (error) throw error;
 
     // Test data
-    nodes = [
-        { "id": "Alice" },
-        { "id": "Bob" },
-        { "id": "Carol" },
-        { "id": "James" }
-    ];
+    // nodes = [
+    //     { "id": "Alice" },
+    //     { "id": "Bob" },
+    //     { "id": "Carol" },
+    //     { "id": "James" }
+    // ];
 
-    links = [
-        { "source": "Alice", "target": "Bob" },
-        { "source": "Bob", "target": "Carol" },
-        { "source": "Alice", "target": "James" }
-    ];
+    // links = [
+    //     { "source": "Alice", "target": "Bob" },
+    //     { "source": "Bob", "target": "Carol" },
+    //     { "source": "Alice", "target": "James" }
+    // ];
 
     // Real data
-    // nodes = graph.nodes;
-    // links = graph.links;
+    nodes = graph.nodes;
+    links = graph.links;
 
     function initInputAreaNames() {
         var nodeNames = [];
@@ -209,14 +209,156 @@ function mouseclickNode(d) {
     document.getElementById("nodeInput").value = d.id;
 }
 
-// TODO check for bugs
+
+// Add node algorithm
+var listOfNodeNetworks = [];
 function addNodeClicked() {
-    if (addNodeIfNotExists()) {
-        findTheLinks(); // Links of the added nodes of the previous function.
-        addTargetNodes();
-    } else
-        window.alert("Node already exists!");
+    var nodeName = document.getElementById("nodeInput").value;
+    console.log(nodeName);
+    if (!isCenterNode(nodeName)) {
+        var relatedNodesToCenter = [];
+        relatedNodesToCenter.push(nodeName);
+        for (let i = 0; i < links.length; i++) {
+            if (links[i].source == nodeName)
+                relatedNodesToCenter.push(links[i].target);
+        }
+        listOfNodeNetworks.push(relatedNodesToCenter);
+        addNodeLabelToList(nodeName);
+    } else {
+        window.alert(nodeName + " already exists as a center node.");
+    }
+    console.log(listOfNodeNetworks);
 }
+
+function isCenterNode(nodeName) {
+    for (let i = 0; i < listOfNodeNetworks.length; i++) {
+        if (listOfNodeNetworks[i][0] == nodeName)
+            return true;
+    }
+    return false;
+}
+
+function drawNodesClicked() {
+    if (listOfNodeNetworks != 0) {
+        prepareCenterNodes();
+        prepareLinks();
+        prepareAddedNodesAsJson();
+        drawNodesV2();
+        recolorNodes();
+    } else {
+        window.alert("No center nodes detected.");
+    }
+}
+
+var addedNodes = [];
+function prepareCenterNodes() {
+    for (let i = 0; i < listOfNodeNetworks.length; i++) {
+        var currentNodeSet = listOfNodeNetworks[i];
+        for (let j = 0; j < currentNodeSet.length; j++) {
+            if (!addedNodes.includes(currentNodeSet[j]))
+                addedNodes.push(currentNodeSet[j]);
+        }
+    }
+}
+
+var linksOfAddedNodes = [];
+function prepareLinks() {
+    for (let i = 0; i < addedNodes.length; i++) {
+        var source = addedNodes[i];
+        for (let j = 0; j < links.length; j++) {
+            if (source == links[j].source && !linksOfAddedNodes.includes(links[j]) && addedNodes.includes(links[j].target)) {   // Potential bug
+                linksOfAddedNodes.push(links[j]);
+            }
+        }
+    }
+    // console.log(linksOfAddedNodes);
+}
+
+var addedNodesAsJson = [];
+function prepareAddedNodesAsJson() {
+    for (let i = 0; i < addedNodes.length; i++) {
+        for (let j = 0; j < nodes.length; j++) {
+            if (addedNodes[i] == nodes[j].id && !addedNodesAsJson.includes(nodes[j])) {
+                addedNodesAsJson.push(nodes[j]);
+            }
+        }
+    }
+}
+
+function drawNodesV2() {
+    var link = svg.append("g")
+        .attr("class", "link")
+        .selectAll("line")
+        .data(linksOfAddedNodes)
+        .enter().append("line");
+
+    var node = svg.append("g")
+        .attr("class", "node")
+        .selectAll("circle")
+        .data(addedNodesAsJson)
+        .enter().append("circle")
+        .attr("r", 7)
+        .call(d3.drag()
+            .on("start", dragstarted)
+            .on("drag", dragged)
+            .on("end", dragended));
+
+    node.append("title")
+        .text(function (d) {
+            finalString = d.id + "\n\nConnected to:\n";
+            d3.selectAll("line").filter(function (line) {
+                if (d.id == line.source) {
+                    finalString += line.target + "\n";
+                }
+            })
+            return finalString;
+        });
+
+    node.on("mouseover", mouseoverNode);
+    node.on("mouseout", mouseoutNode);
+    node.on("click", mouseclickNode);
+
+    simulation
+        .nodes(nodes)
+        .on("tick", ticked);
+
+    simulation.force("link")
+        .links(links);
+
+    function ticked() {
+        link
+            .attr("x1", function (d) { return d.source.x; })
+            .attr("y1", function (d) { return d.source.y; })
+            .attr("x2", function (d) { return d.target.x; })
+            .attr("y2", function (d) { return d.target.y; });
+
+        node
+            .attr("cx", function (d) { return d.x; })
+            .attr("cy", function (d) { return d.y; });
+    }
+}
+
+function recolorNodes() {
+    for (let i = listOfNodeNetworks.length; i > 0; i--) {
+        var currentList = listOfNodeNetworks[i - 1];
+        var currentColor = labels[i - 1].style.color;
+        for (let j = 0; j < currentList.length; j++) {
+            d3.selectAll("circle").filter(function (node) {
+                if (currentList[j] == node.id)
+                    return node;
+            }).style("fill", currentColor);
+        }
+    }
+}
+
+// TODO check for bugs
+// function addNodeClicked() {
+//     if (addNodeIfNotExists()) {
+//         findTheLinks(); // Links of the added nodes of the previous function.
+//         addTargetNodes();
+//     } else
+//         window.alert("Node already exists!");
+// }
 
 function addNodeIfNotExists() {
     var nodeName = document.getElementById("nodeInput").value;
@@ -272,6 +414,7 @@ function existsInToBeFilteredLinks(link) {
     return false;
 }
 
+// Add node button pressed
 function addTargetNodes() {
     for (let i = 0; i < toBeFilteredLinks.length; i++) {
         var targetNodeAsJson = { "id": toBeFilteredLinks[i].target };
@@ -283,7 +426,9 @@ function addTargetNodes() {
     }
 }
 
+// If toBeFiltered is not empty do this
 function applyFilterClicked() {
+    console.log("apply filter clicked");
     var link = svg.append("g")
         .attr("class", "link")
         .selectAll("line")
