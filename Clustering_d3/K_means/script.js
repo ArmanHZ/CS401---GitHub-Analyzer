@@ -139,6 +139,7 @@ initializeNodes();
 //     }
 // }
 
+// TODO update this
 function removeNodes() {
     d3.selectAll("circle").remove();
     d3.selectAll("line").remove();
@@ -390,6 +391,21 @@ function addNodeLabelToList(nodeName) {
     node.appendChild(textnode);
     node.setAttribute("id", "labels");
     node.style.color = randomColor;
+    node.title = function () {
+        for (let i = 0; i < listOfNodeNetworks.length; i++) {
+            console.log(nodeName == listOfNodeNetworks[i][0]);
+            if (nodeName == listOfNodeNetworks[i][0])
+                return "Connected nodes: " + ((listOfNodeNetworks[i].length) - 1).toString();
+        }
+    }();
+    node.addEventListener("click", function () {
+        this.style.color = randomColorGenerator();
+        try {
+            recolorNodes();
+        } catch (err) {
+            console.log("Node does not exists.");
+        }
+    });
     document.getElementById("mySidenav").appendChild(node);
     labels.push(node);
 }
