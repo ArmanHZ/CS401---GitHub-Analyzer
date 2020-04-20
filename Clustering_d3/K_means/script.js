@@ -31,17 +31,14 @@ var simulation = d3.forceSimulation()
             return d.id;
         }))
     // push nodes apart to space them out
-    .force("charge", d3.forceManyBody().strength(-200))
+    .force("charge", d3.forceManyBody().strength(-250))
     // add some collision detection so they don't overlap
-    .force("collide", d3.forceCollide().radius(30))
+    // .force("collide", d3.forceCollide().radius(30))
     // and draw them around the centre of the space
     .force("center", d3.forceCenter(width / 2, height / 2));
 
 let nodes;
 let links;
-var toBeFilteredNodes = [];
-var toBeFilteredLinks = [];
-var targetNodesOfFilteredNodes = [];
 
 var labels = [];
 
@@ -77,68 +74,6 @@ initializeNodes = () => d3.json("data.json", function (error, graph) {
 
 initializeNodes();
 
-// function drawNodes() {
-//     if (toBeFilteredNodes.length == 0) {
-//         var confirmBox = confirm("Filter list is empty.\nDo you want to draw the entire data?");
-//         if (!confirmBox)
-//             return;
-//         else {
-//             var link = svg.append("g")
-//                 .attr("class", "link")
-//                 .selectAll("line")
-//                 .data(links)
-//                 .enter().append("line");
-
-//             var node = svg.append("g")
-//                 .attr("class", "node")
-//                 .selectAll("circle")
-//                 .data(nodes)
-//                 .enter().append("circle")
-//                 .attr("r", 7)
-//                 .call(d3.drag()
-//                     .on("start", dragstarted)
-//                     .on("drag", dragged)
-//                     .on("end", dragended));
-
-//             node.append("title")
-//                 .text(function (d) {
-//                     finalString = d.id + "\n\nConnected to:\n";
-//                     d3.selectAll("line").filter(function (line) {
-//                         if (d.id == line.source) {
-//                             finalString += line.target + "\n";
-//                         }
-//                     })
-//                     return finalString;
-//                 });
-
-//             node.on("mouseover", mouseoverNode);
-//             node.on("mouseout", mouseoutNode);
-//             node.on("click", mouseclickNode);
-
-//             simulation
-//                 .nodes(nodes)
-//                 .on("tick", ticked);
-
-//             simulation.force("link")
-//                 .links(links);
-
-//             function ticked() {
-//                 link
-//                     .attr("x1", function (d) { return d.source.x; })
-//                     .attr("y1", function (d) { return d.source.y; })
-//                     .attr("x2", function (d) { return d.target.x; })
-//                     .attr("y2", function (d) { return d.target.y; });
-
-//                 node
-//                     .attr("cx", function (d) { return d.x; })
-//                     .attr("cy", function (d) { return d.y; });
-//             }
-//         }
-//     } else {
-//         applyFilterClicked();
-//     }
-// }
-
 // TODO update this
 function removeNodes() {
     d3.selectAll("circle").remove();
@@ -155,11 +90,16 @@ function removeNodes() {
     }
 }
 
+function removeOnlySVGItems() {
+    d3.selectAll("circle").remove();
+    d3.selectAll("line").remove();
+}
+
 function resetArrays() {
-    toBeFilteredNodes.length = 0;
-    toBeFilteredLinks.length = 0;
-    targetNodesOfFilteredNodes.length = 0;
-    // labels.length = 0;
+    listOfNodeNetworks.length = 0;
+    addedNodes.length = 0;
+    linksOfAddedNodes.length = 0;
+    addedNodesAsJson.length = 0;
 }
 
 function dragstarted(d) {
@@ -240,12 +180,14 @@ function isCenterNode(nodeName) {
 }
 
 function drawNodesClicked() {
+    removeOnlySVGItems();
     if (listOfNodeNetworks != 0) {
         prepareCenterNodes();
         prepareLinks();
         prepareAddedNodesAsJson();
         drawNodesV2();
         recolorNodes();
+        colorBorderOfCenterNodes();
     } else {
         window.alert("No center nodes detected.");
     }
@@ -352,37 +294,25 @@ function recolorNodes() {
     }
 }
 
-// // TODO check for bugs
-// // function addNodeClicked() {
-// //     if (addNodeIfNotExists()) {
-// //         findTheLinks(); // Links of the added nodes of the previous function.
-// //         addTargetNodes();
-// //     } else
-// //         window.alert("Node already exists!");
-// // }
-
-// function addNodeIfNotExists() {
-//     var nodeName = document.getElementById("nodeInput").value;
-//     var nodeAsJson = { "id": nodeName };
-//     for (let i = 0; i < nodes.length; i++) {
-//         if (JSON.stringify(nodes[i]) === JSON.stringify(nodeAsJson)) {
-//             if (!existsInToBeFilteredNodes(nodes[i])) {
-//                 toBeFilteredNodes.push(nodes[i]);
-//                 addNodeLabelToList(nodeName);
-//                 return true;
-//             }
-//         }
-//     }
-//     return false;
-// }
-
-// function existsInToBeFilteredNodes(node) {
-//     for (let i = 0; i < toBeFilteredNodes.length; i++) {
-//         if (JSON.stringify(toBeFilteredNodes[i]) === JSON.stringify(node))
-//             return true;
-//     }
-//     return false;
-// }
+function colorBorderOfCenterNodes() {
+    for (let i = 0; i < listOfNodeNetworks.length; i++) {
+        var currentCenterNode = listOfNodeNetworks[i][0];
+        d3.selectAll("circle").filter(function (node) {
+            if (currentCenterNode == node.id)
+                return node;
+        }).style("stroke", function () {
+            var color = this.style.fill;
+            color = color.slice(4, color.length - 2);
+            color = color.replace(/\s/g, '');
+            color = color.split(",");
+            var red = 255 - parseInt(color[0]);
+            var blue = 255 - parseInt(color[1]);
+            var green = 255 - parseInt(color[2]);
+            return "rgb(" + red + "," + blue + "," + green + ")";
+        })
+        .style("stroke-width", "2px");
+    }
+}
 
 function addNodeLabelToList(nodeName) {
     var randomColor = randomColorGenerator();
@@ -409,124 +339,6 @@ function addNodeLabelToList(nodeName) {
     document.getElementById("mySidenav").appendChild(node);
     labels.push(node);
 }
-
-// function findTheLinks() {
-//     for (let i = 0; i < toBeFilteredNodes.length; i++) {
-//         for (let j = 0; j < links.length; j++) {
-//             if (toBeFilteredNodes[i].id == links[j].source) {
-//                 var linkAsJson = links[j];
-//                 if (!existsInToBeFilteredLinks(linkAsJson))
-//                     toBeFilteredLinks.push(linkAsJson);
-//             }
-//         }
-//     }
-// }
-
-// function existsInToBeFilteredLinks(link) {
-//     for (let i = 0; i < toBeFilteredLinks.length; i++) {
-//         if (JSON.stringify(toBeFilteredLinks[i]) === JSON.stringify(link))
-//             return true;
-//     }
-//     return false;
-// }
-
-// // Add node button pressed
-// function addTargetNodes() {
-//     for (let i = 0; i < toBeFilteredLinks.length; i++) {
-//         var targetNodeAsJson = { "id": toBeFilteredLinks[i].target };
-//         console.log(targetNodeAsJson);
-//         if (!existsInToBeFilteredNodes(targetNodeAsJson)) {
-//             console.log(targetNodeAsJson + " does not exist");
-//             toBeFilteredNodes.push(targetNodeAsJson);
-//         }
-//     }
-// }
-
-// // If toBeFiltered is not empty do this
-// function applyFilterClicked() {
-//     console.log("apply filter clicked");
-//     var link = svg.append("g")
-//         .attr("class", "link")
-//         .selectAll("line")
-//         .data(toBeFilteredLinks)
-//         .enter().append("line");
-
-//     var node = svg.append("g")
-//         .attr("class", "node")
-//         .selectAll("circle")
-//         .data(toBeFilteredNodes)
-//         .enter().append("circle")
-//         .attr("r", 7)
-//         .call(d3.drag()
-//             .on("start", dragstarted)
-//             .on("drag", dragged)
-//             .on("end", dragended));
-
-//     node.append("title")
-//         .text(function (d) {
-//             finalString = d.id + "\n\nConnected to:\n";
-//             d3.selectAll("line").filter(function (line) {
-//                 if (d.id == line.source) {
-//                     finalString += line.target + "\n";
-//                 }
-//             })
-//             return finalString;
-//         });
-
-//     node.on("mouseover", mouseoverNode);
-//     node.on("mouseout", mouseoutNode);
-//     node.on("click", mouseclickNode);
-
-//     simulation
-//         .nodes(toBeFilteredNodes)
-//         .on("tick", ticked);
-
-//     simulation.force("link")
-//         .links(toBeFilteredLinks);
-
-//     function ticked() {
-//         link
-//             .attr("x1", function (d) { return d.source.x; })
-//             .attr("y1", function (d) { return d.source.y; })
-//             .attr("x2", function (d) { return d.target.x; })
-//             .attr("y2", function (d) { return d.target.y; });
-
-//         node
-//             .attr("cx", function (d) { return d.x; })
-//             .attr("cy", function (d) { return d.y; });
-//     }
-//     applyCorrectColor();
-// }
-
-// function applyCorrectColor() {
-//     var mainNodes = [];
-//     for (let i = 0; i < labels.length; i++) {
-//         var lastLabel = labels[labels.length - 1 - i];
-//         d3.selectAll("circle").filter(function (node) {
-//             if (node.id == lastLabel.innerHTML) {
-//                 mainNodes.push(node);
-//                 return node;
-//             }
-//         }).style("fill", lastLabel.style.color);
-//     }
-
-//     for (let i = 0; i < mainNodes.length; i++) {
-//         d3.selectAll("line").filter(function (line) {
-//             if (mainNodes[i].id == line.source.id) {
-//                 d3.selectAll("circle").filter(function (node) {
-//                     if (node.id == line.target.id) {
-//                         return node;
-//                     }
-//                 }).style("fill", function (node) {
-//                     for (let j = 0; j < labels.length; j++) {
-//                         if (labels[j].innerHTML === mainNodes[i].id)
-//                             return labels[j].style.color;
-//                     }
-//                 });
-//             }
-//         });
-//     }
-// }
 
 function randomColorGenerator() {
     var colorOptions = "0123456789ABCDEF";
