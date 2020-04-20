@@ -9,6 +9,16 @@ var margin = {
     right: 50,
 }
 
+setInputEventListener = () => {
+    var input = document.getElementById("nodeInput");
+    input.addEventListener("keyup", function (event) {
+        if (event.keyCode == 13) {
+            addNodeClicked();
+            input.value = "";
+        }
+    });
+}; setInputEventListener();
+
 // create an svg to draw in
 var svg = d3.select("body")
     .append("svg")
@@ -33,7 +43,7 @@ var simulation = d3.forceSimulation()
     // push nodes apart to space them out
     .force("charge", d3.forceManyBody().strength(-250))
     // add some collision detection so they don't overlap
-    // .force("collide", d3.forceCollide().radius(30))
+    .force("collide", d3.forceCollide().radius(10))
     // and draw them around the centre of the space
     .force("center", d3.forceCenter(width / 2, height / 2));
 
@@ -310,7 +320,8 @@ function colorBorderOfCenterNodes() {
             var green = 255 - parseInt(color[2]);
             return "rgb(" + red + "," + blue + "," + green + ")";
         })
-        .style("stroke-width", "2px");
+            .style("stroke-width", "2px")
+            .style("r", 9);
     }
 }
 
@@ -328,13 +339,28 @@ function addNodeLabelToList(nodeName) {
                 return "Connected nodes: " + ((listOfNodeNetworks[i].length) - 1).toString();
         }
     }();
+
+    var timer = 0;
+    var delay = 200;
+    var prevent = false;
     node.addEventListener("click", function () {
-        this.style.color = randomColorGenerator();
-        try {
-            recolorNodes();
-        } catch (err) {
-            console.log("Node does not exists.");
-        }
+        timer = setTimeout(function () {
+            if (!prevent) {
+                node.style.color = randomColorGenerator();
+                try {
+                    recolorNodes();
+                    colorBorderOfCenterNodes();
+                } catch (err) {
+                    console.log("Node does not exists.");
+                }
+            }
+            prevent = false;
+        }, delay);
+    });
+    node.addEventListener("dblclick", function () {
+        clearTimeout(timer);
+        prevent = true;
+        labelOnDoubleClick(nodeName);
     });
     document.getElementById("mySidenav").appendChild(node);
     labels.push(node);
@@ -350,6 +376,33 @@ function randomColorGenerator() {
     return color;
 }
 
+// Double click to further analyze a node
+var nodeExists = false;
+function labelOnDoubleClick(nodeName) {
+    if (!nodeExists) {
+        var node = document.createElement("p");
+        var textnode = document.createTextNode(nodeName);
+        node.appendChild(textnode);
+        node.setAttribute("id", "toBeAnalyzed");
+        node.style.color = "wheat";
+
+        var button = document.createElement("button");
+        button.addEventListener("click", function () { analyzeButtonClicked() });
+        var buttonText = document.createTextNode("Analyze");
+        node.setAttribute("id", "analyzeButton");
+        button.appendChild(buttonText);
+
+        document.getElementById("bottomDiv").appendChild(node);
+        document.getElementById("bottomDiv").appendChild(button);
+        nodeExists = true;
+    } else {
+        document.getElementById("toBeAnalyzed").innerHTML = nodeName;
+    }
+}
+
+function analyzeButtonClicked() {
+    window.alert("test");
+}
 
 // ###################################
 // Script for autocomplete below

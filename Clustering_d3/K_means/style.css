@@ -100,6 +100,22 @@ svg {
   }
 }
 
+#bottomDiv {
+  border-top: 1px solid wheat;
+  text-align: center;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 30%;
+  font-family: "Helvetica, Arial, "Lucida Grande", sans-serif;
+}
+
+#bottomDiv>p {
+  color: white;
+  text-decoration: none;
+  font-size: 25px;
+}
+
 /* Autocomplete part */
 
 .autocomplete {
@@ -135,11 +151,13 @@ input {
 }
 
 /*when hovering an item:*/
+
 .autocomplete-items div:hover {
   background-color: #e9e9e9;
 }
 
 /*when navigating through the items using the arrow keys:*/
+
 .autocomplete-active {
   background-color: DodgerBlue !important;
   color: #ffffff;
