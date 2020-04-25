@@ -39,11 +39,11 @@ var simulation = d3.forceSimulation()
     .force("link", d3.forceLink()
         .id(function (d) {
             return d.id;
-        }))
+        }).distance(50))
     // push nodes apart to space them out
     .force("charge", d3.forceManyBody().strength(-250))
     // add some collision detection so they don't overlap
-    .force("collide", d3.forceCollide().radius(10))
+    .force("collide", d3.forceCollide().radius(20))
     // and draw them around the centre of the space
     .force("center", d3.forceCenter(width / 2, height / 2));
 
@@ -236,6 +236,7 @@ function prepareAddedNodesAsJson() {
             }
         }
     }
+    // console.log(addedNodesAsJson);
 }
 
 function drawNodesV2() {
@@ -272,11 +273,13 @@ function drawNodesV2() {
     node.on("click", mouseclickNode);
 
     simulation
-        .nodes(nodes)
+        .nodes(addedNodesAsJson)
+        // .nodes(nodes)    Old value
         .on("tick", ticked);
 
     simulation.force("link")
-        .links(links);
+        .links(linksOfAddedNodes);
+        // .links(links);   Old value
 
     function ticked() {
         link
@@ -389,7 +392,7 @@ function labelOnDoubleClick(nodeName) {
         var button = document.createElement("button");
         button.addEventListener("click", function () { analyzeButtonClicked() });
         var buttonText = document.createTextNode("Analyze");
-        node.setAttribute("id", "analyzeButton");
+        // node.setAttribute("id", "analyzeButton");
         button.appendChild(buttonText);
 
         document.getElementById("bottomDiv").appendChild(node);
@@ -401,7 +404,104 @@ function labelOnDoubleClick(nodeName) {
 }
 
 function analyzeButtonClicked() {
-    window.alert("test");
+    var currentNodeName = document.getElementById("toBeAnalyzed").innerHTML;
+    let currentNodeSet;
+    for (let i = 0; i < listOfNodeNetworks.length; i++) {
+        if (currentNodeName == listOfNodeNetworks[i][0])
+            currentNodeSet = listOfNodeNetworks[i];
+    }
+    var linksAndWeights = [];
+    function setLinks() {
+        for (let i = 0; i < currentNodeSet.length; i++) {
+            for (let j = 0; j < links.length; j++) {
+                if (links[j].source == currentNodeSet[i] && currentNodeSet.includes(links[j].target) && !linksAndWeights.includes(links[j]))
+                    linksAndWeights.push(links[j]);
+            }
+        }
+    } setLinks();
+    // console.table(linksAndWeights);
+    drawAnalyzedNodes(currentNodeSet, linksAndWeights);
+}
+
+function drawAnalyzedNodes(currentNodeSet, linksAndWeights) {
+    for (let i = 0; i < linksAndWeights.length; i++) {
+        for (let j = i; j < linksAndWeights.length; j++) {
+            if (linksAndWeights[i].value < linksAndWeights[j].value) {
+                var temp = linksAndWeights[i];
+                linksAndWeights[i] = linksAndWeights[j];
+                linksAndWeights[j] = temp;
+            }
+        }
+    }
+    linksAndWeights.reverse();
+    console.table(linksAndWeights);
+
+    d3.selectAll("circle").remove();
+    d3.selectAll("line").remove();
+    var link = svg.append("g")
+        .attr("class", "link")
+        .selectAll("line")
+        .data(linksAndWeights)
+        .enter().append("line")
+        .style("stroke-width", function (link) { return Math.sqrt(link.value) })
+        .style("stroke", function (link) {
+            var colorValue = link.value;
+            var red = (colorValue > 255) ? 255 : colorValue;
+            var green = ((255 - colorValue) < 1) ? 1 : (255 - colorValue);
+            var blue = 1;
+            return "rgb(" + red + ", " + green + ", " + blue + ")";
+        });
+
+    for (let i = 0; i < currentNodeSet.length; i++) {
+        var format = { "id": currentNodeSet[i] };
+        currentNodeSet[i] = format;
+    }
+
+    var node = svg.append("g")
+        .attr("class", "node")
+        .selectAll("circle")
+        .data(currentNodeSet)
+        .enter().append("circle")
+        .attr("r", 7)
+        .call(d3.drag()
+            .on("start", dragstarted)
+            .on("drag", dragged)
+            .on("end", dragended));
+
+    node.append("title")
+        .text(function (d) {
+            finalString = d.id + "\n\nConnected to:\n";
+            d3.selectAll("line").filter(function (line) {
+                if (d.id == line.source) {
+                    finalString += line.target + "\n";
+                }
+            })
+            return finalString;
+        });
+
+    node.on("mouseover", mouseoverNode);
+    node.on("mouseout", mouseoutNode);
+    node.on("click", mouseclickNode);
+
+    simulation
+        .nodes(currentNodeSet)
+        .on("tick", ticked);
+
+    simulation.force("link")
+        .links(linksAndWeights);
+
+    function ticked() {
+        link
+            .attr("x1", function (d) { return d.source.x; })
+            .attr("y1", function (d) { return d.source.y; })
+            .attr("x2", function (d) { return d.target.x; })
+            .attr("y2", function (d) { return d.target.y; });
+
+        node
+            .attr("cx", function (d) { return d.x; })
+            .attr("cy", function (d) { return d.y; });
+    }
+
 }
 
 // ###################################
