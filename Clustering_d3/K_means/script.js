@@ -152,8 +152,10 @@ function mouseoverNode(d) {
 }
 
 function mouseoutNode(d) {
-    d3.selectAll("circle").style("opacity", "100");
-    d3.selectAll("line").style("opacity", "100");
+    if (d3.event.shiftKey) {
+        d3.selectAll("circle").style("opacity", "100");
+        d3.selectAll("line").style("opacity", "100");
+    }
 }
 
 function mouseclickNode(d) {
@@ -279,7 +281,7 @@ function drawNodesV2() {
 
     simulation.force("link")
         .links(linksOfAddedNodes);
-        // .links(links);   Old value
+    // .links(links);   Old value
 
     function ticked() {
         link
@@ -434,7 +436,7 @@ function drawAnalyzedNodes(currentNodeSet, linksAndWeights) {
         }
     }
     linksAndWeights.reverse();
-    console.table(linksAndWeights);
+    // console.table(linksAndWeights);
 
     d3.selectAll("circle").remove();
     d3.selectAll("line").remove();
@@ -443,7 +445,7 @@ function drawAnalyzedNodes(currentNodeSet, linksAndWeights) {
         .selectAll("line")
         .data(linksAndWeights)
         .enter().append("line")
-        .style("stroke-width", function (link) { return Math.sqrt(link.value) })
+        .style("stroke-width", function (link) { return Math.sqrt(Math.sqrt(link.value)) })
         .style("stroke", function (link) {
             var colorValue = link.value;
             var red = (colorValue > 255) ? 255 : colorValue;
@@ -462,7 +464,14 @@ function drawAnalyzedNodes(currentNodeSet, linksAndWeights) {
         .selectAll("circle")
         .data(currentNodeSet)
         .enter().append("circle")
-        .attr("r", 7)
+        .attr("r", 8)
+        .style("fill", function (node) {
+            if (node.id == currentNodeSet[0].id)
+                return "yellow";
+            else
+                return "white";
+        })
+        .style("stroke-width", 2)
         .call(d3.drag()
             .on("start", dragstarted)
             .on("drag", dragged)
@@ -502,6 +511,34 @@ function drawAnalyzedNodes(currentNodeSet, linksAndWeights) {
             .attr("cy", function (d) { return d.y; });
     }
 
+}
+
+// Slider action listener
+var slider = document.getElementById("vol");
+slider.oninput = function () {
+    document.getElementById("sliderLabel").innerHTML = "Remove links value < " + slider.value;
+    var toBeEditedNodes = [];
+    var activeLinks = [];
+    d3.selectAll("line").style("opacity", function (link) {
+        if (link.value < slider.value) {
+            if (!toBeEditedNodes.includes(link.source.id))
+                toBeEditedNodes.push(link.source.id)
+            if (!toBeEditedNodes.includes(link.target.id))
+                toBeEditedNodes.push(link.target.id)
+            return 0.0;
+        } else
+            activeLinks.push(link);
+    })
+    // console.log(toBeEdited);
+    d3.selectAll("circle").style("opacity", function (node) {
+        if (toBeEditedNodes.includes(node.id)) {
+            for (let i = 0; i < activeLinks.length; i++) {
+                if (node.id == activeLinks[i].source.id || node.id == activeLinks[i].target.id)
+                    return 1.0;
+            }
+            return 0.0
+        }
+    })
 }
 
 // ###################################
