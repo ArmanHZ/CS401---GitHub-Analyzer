@@ -53,11 +53,20 @@ public class PartnerDevelopers extends Application {
      private static ArrayList <String> DevelopersNames = new ArrayList<String>();
      private static ArrayList <String> Developers = new ArrayList<String>();
  	 
-	 
-	 
+     
+     private static ArrayList <String> clusterList = new ArrayList<String>();
+	 private static ArrayList <String> clusterFilelList = new ArrayList<String>();
+	 private static ArrayList <String> developersFilesCount = new ArrayList<String>();
+	 private static ArrayList <String> FileandDevelopers = new ArrayList<String>();
+	 private static ArrayList <String> Files = new ArrayList<String>();
+	 ArrayList<String> fileNames = new ArrayList<>();
+	 ArrayList<String> authorNames = new ArrayList<>();
+	 ArrayList<Integer> editCount = new ArrayList<>();
+	 private static ArrayList <String> FilesMaxChange = new ArrayList<String>();
+	
 
 	@Override
-	public void start(Stage stage) throws IOException {
+	public void  start(Stage stage) throws IOException {
 		 
 		File file = new File("final_dump.txt");
 		Scanner f = new Scanner(file);
@@ -134,6 +143,7 @@ public class PartnerDevelopers extends Application {
         for(String filename:allfilenames){
 		    if(!filenames.contains(filename)){
 			 filenames.add(filename);
+			 
 		    }
 	    }
         
@@ -163,6 +173,7 @@ public class PartnerDevelopers extends Application {
 					    //for exclude those whose file edit count are zero
 					    if( count !=0 ){
 					     fileChangeInfos.add(name+" "+filename+" "+count);
+					     clusterList.add(name+""+filename+" "+count);
 					    }
 			            count=0;
 		     
@@ -172,9 +183,9 @@ public class PartnerDevelopers extends Application {
         	
      
    	      //control part
-        /*	for(String filechangeinfo:fileChangeInfos){
+        	for(String filechangeinfo:fileChangeInfos){
         		System.out.println(filechangeinfo);
-        	} */
+        	} 
    	           
    	           
         	//this part create pair developer list, count number is minumum changed 
@@ -193,6 +204,7 @@ public class PartnerDevelopers extends Application {
             				counter=Integer.valueOf(fileinfoarray2[3]);
             			}
             			//control part
+            		
             			//System.out.println(fileinfoarray[0]+" "+fileinfoarray2[0]+" "+counter+ " " +fileinfoarray[2]);
             			PairPersonsFile.add(fileinfoarray[0]+" "+fileinfoarray2[0]+" "+fileinfoarray[2]+" "+counter);
             		}
@@ -218,6 +230,8 @@ public class PartnerDevelopers extends Application {
         			
         			}
         		}
+        	//	System.out.println(pairPerson[0]+" "+pairPerson[1]);
+
         	//	System.out.println(pairPerson[0]+" "+pairPerson[1]+" "+commonFileCount);
         		PairPersonsFileTotal.add(pairPerson[0]+" "+pairPerson[1]+" "+commonFileCount);
         		commonFileCount=0;
@@ -231,10 +245,10 @@ public class PartnerDevelopers extends Application {
         	}
         	
         	//control part
-        /*	for(String info :PairPersonsFileTotalS ){
+        	for(String info :PairPersonsFileTotalS ){
         		
         		System.out.println(info);
-        	} */
+        	} 
         
         	//add in hashmap 
         	for(int i=0;i<PairPersonsFileTotalS.size();i++){
@@ -279,12 +293,78 @@ public class PartnerDevelopers extends Application {
             
            
         
-        
+        //CLUSTER PART
+                	for(int i=0;i<clusterList.size();i++){
+        	        	String filename =clusterList.get(i).replace('/',' ');
+        	        	developersFilesCount.add(filename);
+        	        //	System.out.println(filename);
+        	 } 
+        		
+        		 for(int i=0;i<developersFilesCount.size();i++){
+        	        	String [] filename =developersFilesCount.get(i).split(" ");
+        	        	
+        	        	int count2=Integer.valueOf(filename[filename.length-1]);       	
+        	        	for(int j=i+1;j<developersFilesCount.size();j++){
+        	        		String [] filename2 =developersFilesCount.get(j).split(" ");
+        	        		
+        	        		if(filename[0].equals(filename2[0]) && filename[1].equals(filename2[1])){
+        	        			
+        	        			count2 += Integer.valueOf(filename2[filename2.length-1]);
+        	        			
+        	        		}
+        	        	}
+        	        		
+        	        	clusterFilelList.add(filename[0]+" "+filename[1]+" "+count2);
+            		//	 System.out.println(filename[0]+" "+filename[1]+" "+count2);
+        	        	
+        	        } 
+        		 for(int i=0;i<clusterFilelList.size();i++){
+        			 String [] filedelete= clusterFilelList.get(i).split(" ");
+        			 if(!filedelete[1].equals("README.md")){
+        				 FileandDevelopers.add(filedelete[0]+" "+filedelete[1]+" "+filedelete[2]);
+        			 }
+        		 }
+        		 for(String filess:FileandDevelopers){
+        			 
+        		//	 System.out.println(filess);
+        	        	
+        		 }
+        		 
+        		 
+        		
+        		 for(int i=0;i<clusterFilelList.size();i++){
+        			 String[] split = clusterFilelList.get(i).split(" ");
+        			 if (!authorNames.contains(split[0])) {
+        					authorNames.add(split[0]);
+        					fileNames.add(split[1]);
+        					editCount.add(Integer.parseInt(split[2]));
+        				} else {
+        					int currentIndex = authorNames.lastIndexOf(split[0]);
+        					if (editCount.get(currentIndex) < Integer.parseInt(split[2])) {
+        						authorNames.set(currentIndex, split[0]);
+        						fileNames.set(currentIndex, split[1]);
+        						editCount.set(currentIndex, Integer.parseInt(split[2]));
+        					}
+        				}
+        			}
+        			for (int i = 0; i < fileNames.size(); i++) {
+        			//	System.out.println(authorNames.get(i)+" " +fileNames.get(i) + " " + editCount.get(i));
+        				FilesMaxChange.add(authorNames.get(i)+" " +fileNames.get(i) + " " + editCount.get(i));
+        			}
+        			
+        			for(int i=0;i<FilesMaxChange.size();i++){
+        				String[] split = FilesMaxChange.get(i).split(" ");
+        				if(!Files.contains(split[1])){
+        					Files.add(split[1]);
+        				}
+        			}
+        			
        
 	
 	   //visualation part
 	 
-      stage.setTitle("GridPane Experiment");
+      stage.setTitle("GridPane Experiment and Cluster");
+      Group group = new Group();
       Label label1 = new Label();
       label1.setFont(new Font("Arial", 24));
       
@@ -457,6 +537,7 @@ public class PartnerDevelopers extends Application {
       	              			        	 
       	              			        	 for (int i=0; i<PairPersonsFile.size(); i++){
       	              			        	 String[] filenames =PairPersonsFile.get(i).split(" ");
+      	              			        	 
       	              			        	 if(finalname.equals(filenames[0]+","+filenames[1])){
       	              			        		 listView.getItems().add(filenames[2]+" + "+filenames[3]);
       	              			        	 }
@@ -536,7 +617,7 @@ public class PartnerDevelopers extends Application {
       	            listView.setLayoutY(50);
       	            //VBox vBox = new VBox(listView, gridPane);
       	            
-      	            Group group = new Group();
+      	           
       	            group.getChildren().add(gridPane);
       	            group.getChildren().add(label);
       	            group.getChildren().add(listView);
@@ -559,8 +640,56 @@ public class PartnerDevelopers extends Application {
            	 }
            	
            }
-          
-       
+        //CLUSTER PART
+        Button clusterbtn = new Button();
+	        clusterbtn.setText(" CLUSTER ");
+	        clusterbtn.setOnAction(new EventHandler<ActionEvent>() { 
+	            @Override
+	            public void handle(ActionEvent event) {
+	            	  for(int i=0;i<Files.size();i++){
+	       	    	   Label label = new Label();
+	       		        label.setFont(new Font("Arial", 11));
+	       		        label.setStyle("-fx-background-color: #ADFF2F; -fx-border-color: black;");
+	       		        label.setText(Files.get(i)+" group ");
+	       		        label.setLayoutX(i*100);
+	       		        label.setLayoutY(526);
+	       		        
+	       		        group.getChildren().add(label);
+	       	    	 
+	       	    	  ListView listView2 = new ListView();
+	       	    	  listView2.setPrefWidth(75);
+	       	    	  listView2.setPrefHeight(75);
+	       	    	  listView2.setLayoutX((i)*100);
+	       	          listView2.setLayoutY(550);
+	       	          group.getChildren().add(listView2);
+	       	    	
+	       	          for(int j=0;j<FilesMaxChange.size();j++){
+	       	    		 
+	       	    		  String[] filenames =FilesMaxChange.get(j).split(" ");
+	       	    		  if(Files.get(i).equals(filenames[1])){
+	       	    			  listView2.getItems().add(filenames[0]);  
+	       	    		  }
+	       	    		
+	       	    		
+	       		        	
+	       	    		 
+	       	    		  
+	       	      }
+	       	      }
+	       	      
+	       	    
+	       	        	 
+	       	        	 
+	       	        	 
+	       	        	
+	              
+	            }
+	        
+	        });
+	
+	        clusterbtn.setStyle("-fx-background-color: red ; -fx-border-color: black;");
+	        clusterbtn.setLayoutX(100);
+	        clusterbtn.setLayoutY(500);
           
            
          
@@ -583,13 +712,15 @@ public class PartnerDevelopers extends Application {
         //VBox vBox = new VBox(listView, gridPane);
       
         
-        Group group = new Group();
+       
         group.getChildren().add(gridPane);
         group.getChildren().add(label);
         group.getChildren().add(listView);
+        group.getChildren().add(clusterbtn);
+        
        
         stage.setTitle(" Partner Developers Matrix ");
-        Scene scene = new Scene(group, 800, 600);
+        Scene scene = new Scene(group, 800, 650);
         stage.setScene(scene);
         stage.show();
     }
