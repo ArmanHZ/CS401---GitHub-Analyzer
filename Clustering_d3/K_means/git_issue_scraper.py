@@ -9,14 +9,19 @@ u_client = urllib.request.urlopen(url)
 
 page_html = u_client.read()
 
-# print(page_html)
-
 page_soup = soup(page_html, "html.parser")
 
 git_issues = page_soup.findAll("div", { "id": lambda l: l and l.startswith("issue") })
+issues_and_hrefs = []
 
-sinlge_issue = git_issues[0].findAll("a", { "id": True })
-print(sinlge_issue[0].get("id"))
+for issue in git_issues:
+    a_tag = issue.findAll("a", { "id": True })
+    issue_id = a_tag[0].get("id")   # Each issue div has one "a" tag, so it is safe to use [0]
+    issue_href = a_tag[0].get("href")
+    issue_and_href = { "issue": issue_id, "href": issue_href }
+    issues_and_hrefs.append(issue_and_href)
+
+
 
 u_client.close()
 
