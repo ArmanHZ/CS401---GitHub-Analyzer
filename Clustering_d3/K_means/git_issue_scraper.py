@@ -4,11 +4,11 @@ from bs4 import BeautifulSoup as soup
 
 
 class Issue:
-    def __init__(self, id, issue_link, commits):
+    def __init__(self, id, issue_link):
         self.id = id
         self.issue_link = issue_link
         self.commit_link = None     # May be null, since not all closed issues are legit and have a fixed commit.
-        self.commits = commits
+        self.commits = []
 
 
 git_url = "https://github.com"
@@ -29,11 +29,10 @@ for issue in git_issues:
     issue_id = a_tag[0].get("id")   # Each issue div has one "a" tag, so it is safe to use [0]
     issue_id = issue_id.split("_")[1]
     issue_href = git_url + a_tag[0].get("href")
-    issues.append(Issue(issue_id, issue_href, None))
+    issues.append(Issue(issue_id, issue_href))
 
-# TODO loop through issue links and find which files were committed per issue.
 
-for issue in issues[:5]:
+for issue in issues:
     u_client = urllib.request.urlopen(issue.issue_link)
     current_html = u_client.read()
     current_soup = soup(current_html, "html.parser")
@@ -47,6 +46,26 @@ for issue in issues[:5]:
                     issue.commit_link = git_url + tag.split("\"")[1]
 
 
+for issue in issues:
+    if issue.commit_link is not None:
+        u_client = urllib.request.urlopen(issue.commit_link)
+        current_html = u_client.read()
+        current_soup = soup(current_html, "html.parser")
+        changed_files = current_soup.findAll("a", { "class": "link-gray-dark" })
+        for file_ in changed_files:
+            if len(file_) is 1:
+                split = str(file_).split(" ")
+                split = split[3].split("\"")[1]
+                issue.commits.append(split)
+
+
+# Print function
+# for issue in issues:
+#     print(issue.id)
+#     print(issue.issue_link)
+#     print(issue.commit_link)
+#     print(issue.commits)
+#     print()
 
 
 u_client.close()
