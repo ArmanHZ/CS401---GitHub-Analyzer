@@ -4,9 +4,10 @@ from bs4 import BeautifulSoup as soup
 
 
 class Issue:
-    def __init__(self, id, link, commits):
+    def __init__(self, id, issue_link, commits):
         self.id = id
-        self.link = link
+        self.issue_link = issue_link
+        self.commit_link = None     # May be null, since not all closed issues are legit and have a fixed commit.
         self.commits = commits
 
 
@@ -30,7 +31,22 @@ for issue in git_issues:
     issue_href = git_url + a_tag[0].get("href")
     issues.append(Issue(issue_id, issue_href, None))
 
+# TODO loop through issue links and find which files were committed per issue.
+
+for issue in issues[:5]:
+    u_client = urllib.request.urlopen(issue.issue_link)
+    current_html = u_client.read()
+    current_soup = soup(current_html, "html.parser")
+    current_commit_link = current_soup.findAll("code")
+    for line in current_commit_link:
+        a_tag = line.find("a", { "data-hovercard-type": "commit"})
+        if a_tag is not None:
+            tag_split = str(a_tag).split(" ")
+            for tag in tag_split:
+                if "href" in tag:
+                    issue.commit_link = git_url + tag.split("\"")[1]
+
+
 
 
 u_client.close()
-
