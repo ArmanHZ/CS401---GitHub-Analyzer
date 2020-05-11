@@ -422,7 +422,24 @@ function analyzeButtonClicked() {
         }
     } setLinks();
     // console.table(linksAndWeights);
+    findRelatedIssues(currentNodeName)
     drawAnalyzedNodes(currentNodeSet, linksAndWeights);
+}
+
+function findRelatedIssues(nodeName) {
+    d3.json("issue.json", function (data) {
+        var issue_counter = 0;
+        for (let i = 0; i < data.issues.length; i++) {
+            if (data.issues[i].commits.includes(nodeName)) {
+                console.log(data.issues[i].id);
+                console.log(data.issues[i].issue_link);
+                console.log(data.issues[i].commit_link);
+                console.log("\n");
+                issue_counter++;
+            }
+        }
+        console.log(nodeName + " was in " + issue_counter + " closed issues.");
+    });
 }
 
 function drawAnalyzedNodes(currentNodeSet, linksAndWeights) {
