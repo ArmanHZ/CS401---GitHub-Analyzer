@@ -2,6 +2,7 @@ import urllib.request
 import bs4
 from bs4 import BeautifulSoup as soup
 import sys
+import time
 
 
 class Issue:
@@ -65,18 +66,36 @@ for i in range(number_of_pages):
             changed_files = current_soup.findAll("a", { "class": "link-gray-dark" })
             for file_ in changed_files:
                 if len(file_) is 1:
-                    split = str(file_).split(" ")
-                    split = split[3].split("\"")[1]
-                    issue.commits.append(split)
+                    try:
+                        split = str(file_).split(" ")
+                        split = split[3].split("\"")[1]
+                        issue.commits.append(split)
+                    except:
+                        print("issue at: " + issue.id + "\t" + issue.issue_link)
+
+    file = open("issue_data.txt", "a")
+    for issue in issues:
+        data_str = str(issue.id) + "\n" + str(issue.issue_link) + "\n" + str(issue.commit_link) + "\n"
+        file.write(data_str)
+        commit_str = ""
+        for commit in issue.commits:
+            commit_str += commit + ", "
+        file.write(commit_str[:-2] + "\n")
+        file.write("\n")
+    
+    file.close()
+    issues = []
+    time.sleep(35)
+
 
 
 # Print function
-for issue in issues:
-    print(issue.id)
-    print(issue.issue_link)
-    print(issue.commit_link)
-    print(issue.commits)
-    print()
+# for issue in issues:
+#     print(issue.id)
+#     print(issue.issue_link)
+#     print(issue.commit_link)
+#     print(issue.commits)
+#     print()
 
 
 u_client.close()
