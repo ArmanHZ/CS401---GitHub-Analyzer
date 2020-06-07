@@ -434,6 +434,7 @@ function findRelatedIssues(nodeName) {
                 console.log(data.issues[i].id);
                 console.log(data.issues[i].issue_link);
                 console.log(data.issues[i].commit_link);
+                console.log(data.issues[i].commits);
                 console.log("\n");
                 issue_counter++;
             }
