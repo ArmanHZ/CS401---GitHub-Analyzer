@@ -427,18 +427,21 @@ function analyzeButtonClicked() {
 }
 
 function findRelatedIssues(nodeName) {
-    d3.json("issue.json", function (data) {
+    d3.json('issue_.json', function (data) {
         var issue_counter = 0;
+        var table_values = [];
         for (let i = 0; i < data.issues.length; i++) {
             if (data.issues[i].commits.includes(nodeName)) {
-                console.log(data.issues[i].id);
-                console.log(data.issues[i].issue_link);
-                console.log(data.issues[i].commit_link);
-                console.log(data.issues[i].commits);
-                console.log("\n");
+                // console.log(data.issues[i].id);
+                // console.log(data.issues[i].issue_link);
+                // console.log(data.issues[i].commit_link);
+                // console.log(data.issues[i].commits);
+                // console.log("\n");
+                table_values.push({"id": data.issues[i].id, "issue_link": data.issues[i].issue_link, "commit_link": data.issues[i].commit_link, "commits": data.issues[i].commits});
                 issue_counter++;
             }
         }
+        console.table(table_values);
         console.log(nodeName + " was in " + issue_counter + " closed issues.");
     });
 }
