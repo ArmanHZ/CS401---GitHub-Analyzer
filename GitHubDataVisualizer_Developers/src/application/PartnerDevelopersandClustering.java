@@ -58,11 +58,15 @@ public class PartnerDevelopers extends Application {
 	 private static ArrayList <String> clusterFilelList = new ArrayList<String>();
 	 private static ArrayList <String> developersFilesCount = new ArrayList<String>();
 	 private static ArrayList <String> FileandDevelopers = new ArrayList<String>();
+	 private static ArrayList <String> FileandDevelopers2 = new ArrayList<String>();
 	 private static ArrayList <String> Files = new ArrayList<String>();
 	 ArrayList<String> fileNames = new ArrayList<>();
 	 ArrayList<String> authorNames = new ArrayList<>();
 	 ArrayList<Integer> editCount = new ArrayList<>();
 	 private static ArrayList <String> FilesMaxChange = new ArrayList<String>();
+	 private static ArrayList <String> SubDevelopers = new ArrayList<String>();
+	 private static ArrayList <String> clusterControl = new ArrayList<String>();
+			
 	
 
 	@Override
@@ -183,10 +187,10 @@ public class PartnerDevelopers extends Application {
         	
      
    	      //control part
-        	for(String filechangeinfo:fileChangeInfos){
+        /*	for(String filechangeinfo:fileChangeInfos){
         		System.out.println(filechangeinfo);
         	} 
-   	           
+   	           */
    	           
         	//this part create pair developer list, count number is minumum changed 
         	int counter =0;
@@ -299,6 +303,21 @@ public class PartnerDevelopers extends Application {
         	        	developersFilesCount.add(filename);
         	        //	System.out.println(filename);
         	 } 
+                /*	//control part
+                	for(String info:developersFilesCount){
+                		 	System.out.println(info);
+                	} */
+                	
+                	for(int i=0;i<developersFilesCount.size();i++){
+                		String [] info =developersFilesCount.get(i).split(" ");
+                		if(!SubDevelopers.contains(info[0]+" "+info[1])){
+                			SubDevelopers.add(info[0]+" "+info[1]);
+                		}
+                	}
+                /*	//control part
+                	for(String info:SubDevelopers){
+                		 	System.out.println(info);
+                	}*/
         		
         		 for(int i=0;i<developersFilesCount.size();i++){
         	        	String [] filename =developersFilesCount.get(i).split(" ");
@@ -321,19 +340,48 @@ public class PartnerDevelopers extends Application {
         		 for(int i=0;i<clusterFilelList.size();i++){
         			 String [] filedelete= clusterFilelList.get(i).split(" ");
         			 if(!filedelete[1].equals("README.md")){
-        				 FileandDevelopers.add(filedelete[0]+" "+filedelete[1]+" "+filedelete[2]);
+        				 FileandDevelopers2.add(filedelete[0]+" "+filedelete[1]+" "+filedelete[2]);
         			 }
         		 }
-        		 for(String filess:FileandDevelopers){
+        		 
+			 
+        	/*	 for(String filess:FileandDevelopers){
         			 
-        		//	 System.out.println(filess);
+        			 System.out.println(filess);
         	        	
+        		 } */
+        		 
+        		 // tekkiþi tarafýndan deðiþtirilmiþ kýsýmlarý  silme 
+        		
+        		 System.out.println("-----------------------------");
+ 	        	
+        		 int x = 0;
+        		 for(int i=0;i<FileandDevelopers2.size();i++){
+        			 String [] filedelete= FileandDevelopers2.get(i).split(" ");
+        			 for(int j=0;j<FileandDevelopers2.size();j++){
+        				 String [] filedelete2= FileandDevelopers2.get(j).split(" ");
+        				 if(i != j){
+        				   if(filedelete[1].equals(filedelete2[1])){
+        					 x++;
+        				   }
+        				 }
+        			 }
+        			 if(x != 0){
+        				 FileandDevelopers.add(FileandDevelopers2.get(i));
+        			 }
+        			 x=0;
         		 }
         		 
         		 
+        		 
+        		 /*    for(String filess:FileandDevelopers){
+        			 
+        			 System.out.println(filess);
+        	        	
+        		 } */
         		
-        		 for(int i=0;i<clusterFilelList.size();i++){
-        			 String[] split = clusterFilelList.get(i).split(" ");
+        		 for(int i=0;i<FileandDevelopers.size();i++){
+        			 String[] split = FileandDevelopers.get(i).split(" ");
         			 if (!authorNames.contains(split[0])) {
         					authorNames.add(split[0]);
         					fileNames.add(split[1]);
@@ -341,9 +389,12 @@ public class PartnerDevelopers extends Application {
         				} else {
         					int currentIndex = authorNames.lastIndexOf(split[0]);
         					if (editCount.get(currentIndex) < Integer.parseInt(split[2])) {
+        						
         						authorNames.set(currentIndex, split[0]);
         						fileNames.set(currentIndex, split[1]);
         						editCount.set(currentIndex, Integer.parseInt(split[2]));
+        					
+        						
         					}
         				}
         			}
@@ -646,36 +697,74 @@ public class PartnerDevelopers extends Application {
 	        clusterbtn.setOnAction(new EventHandler<ActionEvent>() { 
 	            @Override
 	            public void handle(ActionEvent event) {
-	            	  for(int i=0;i<Files.size();i++){
-	       	    	   Label label = new Label();
-	       		        label.setFont(new Font("Arial", 11));
-	       		        label.setStyle("-fx-background-color: #ADFF2F; -fx-border-color: black;");
-	       		        label.setText(Files.get(i)+" group ");
-	       		        label.setLayoutX(i*100);
-	       		        label.setLayoutY(526);
+	             ArrayList<String> controlNames = new ArrayList<>();
+	              for(int i=0;i<Files.size();i++){
+	       	    	    Label label = new Label();
+	       		        label.setFont(new Font("Arial", 9));
+	       		        
+	       		        label.setText(Files.get(i)+" Group ");
+	       		        label.setLayoutX((i*100)+10);
+	       		        label.setLayoutY(485);
 	       		        
 	       		        group.getChildren().add(label);
+	       		        
+	       		        Label mainDevelopers = new Label();
+	       		        mainDevelopers.setFont(new Font("Arial", 9));
+	       		        mainDevelopers.setText("Main Developers: ");
+	       		        mainDevelopers.setLayoutX((i*100)+10);
+	       		        mainDevelopers.setLayoutY(500);
+	       		        group.getChildren().add(mainDevelopers);
+	       		        
+	       		        Label subDevelopers = new Label();
+	       		        subDevelopers.setFont(new Font("Arial", 9));
+	       		        subDevelopers.setText("Sub Developers: ");
+	       		        subDevelopers.setLayoutX((i*100)+10);
+	       		        subDevelopers.setLayoutY(590);
+	       		        group.getChildren().add(subDevelopers);
+	       		     
+	       		        int value=0;
+	       		        
 	       	    	 
-	       	    	  ListView listView2 = new ListView();
-	       	    	  listView2.setPrefWidth(75);
-	       	    	  listView2.setPrefHeight(75);
-	       	    	  listView2.setLayoutX((i)*100);
-	       	          listView2.setLayoutY(550);
-	       	          group.getChildren().add(listView2);
+	       	    	   ListView listView2 = new ListView();
+	       	    	   listView2.setPrefWidth(75);
+	       	    	   listView2.setPrefHeight(75);
+	       	    	   listView2.setLayoutX(((i)*100)+10);
+	       	           listView2.setLayoutY(510);
+	       	           group.getChildren().add(listView2);
+	       	          
+	       	           ListView listView3 = new ListView();
+	       	           listView3.setPrefWidth(75);
+      	    	       listView3.setPrefHeight(75);
+      	    	       listView3.setLayoutX(((i)*100)+10);
+      	               listView3.setLayoutY(600);
+      	               group.getChildren().add(listView3);
 	       	    	
-	       	          for(int j=0;j<FilesMaxChange.size();j++){
+	       	           for(int j=0;j<FilesMaxChange.size();j++){
 	       	    		 
 	       	    		  String[] filenames =FilesMaxChange.get(j).split(" ");
 	       	    		  if(Files.get(i).equals(filenames[1])){
 	       	    			  listView2.getItems().add(filenames[0]);  
+	       	    			  value++;
+	       	    			  controlNames.add(filenames[0]);
 	       	    		  }
+	       	    		int red = value * 50;
+   			            int green = 255 - (value * 30);
+   			         
+   					    label.setStyle("-fx-background-color: rgb(" + red + "," + green + ",0); -fx-border-color: black;");
 	       	    		
-	       	    		
-	       		        	
+	       	          }
+	       	          for(int j=0;j<SubDevelopers.size();j++){
 	       	    		 
-	       	    		  
-	       	      }
-	       	      }
+	       	    		  String[] filenames =SubDevelopers.get(j).split(" ");
+	       	    		  if(Files.get(i).equals(filenames[1]) && !controlNames.contains(filenames[0])){
+	       	    			  listView3.getItems().add(filenames[0]);  
+	       	    			  
+	       	    	      }
+	       	          } 
+	       	          controlNames.clear();
+	       	     
+	            	  
+	             }
 	       	      
 	       	    
 	       	        	 
@@ -688,8 +777,8 @@ public class PartnerDevelopers extends Application {
 	        });
 	
 	        clusterbtn.setStyle("-fx-background-color: red ; -fx-border-color: black;");
-	        clusterbtn.setLayoutX(100);
-	        clusterbtn.setLayoutY(500);
+	        clusterbtn.setLayoutX(10);
+	        clusterbtn.setLayoutY(450);
           
            
          
@@ -720,7 +809,7 @@ public class PartnerDevelopers extends Application {
         
        
         stage.setTitle(" Partner Developers Matrix ");
-        Scene scene = new Scene(group, 800, 650);
+        Scene scene = new Scene(group, 800, 700);
         stage.setScene(scene);
         stage.show();
     }
