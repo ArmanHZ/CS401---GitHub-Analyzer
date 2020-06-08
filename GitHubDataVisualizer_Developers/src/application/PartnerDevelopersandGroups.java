@@ -534,8 +534,10 @@ public class PartnerDevelopers extends Application {
       	        btn.setOnAction(new EventHandler<ActionEvent>() { //click soert button
       	            @Override
       	            public void handle(ActionEvent event) {
+      	              Group group = new Group();
+      	            	
       	            	 GridPane gridPane = new GridPane();
-      	                
+      	            	
       	                
       	                for(int i=0;i<=Developers.size();i++){
       	                	
@@ -552,11 +554,12 @@ public class PartnerDevelopers extends Application {
       	                		 label.getStyleClass().add("matrixCells");
       	             	         label.setMinSize(20, 20);
       	             	         
+      	             	         
       	                	 }else if(j==0 && i>0){
       	                		// label.setText(authors.get(i-1));
       	                		// label.setMinSize(10, 10);
       	             	        // label.setRotate(-45);
-      	                		 label.setText("");
+      	                		 label.setText("    ");
       	                		 VerticalLabel columnNames = new VerticalLabel(VerticalDirection.UP);
       	                         columnNames.setText(Developers.get(i-1));
       	                         columnNames.setMinHeight(Region.USE_PREF_SIZE);
@@ -650,6 +653,100 @@ public class PartnerDevelopers extends Application {
         	
         }
       	                
+      	            Button clusterbtn = new Button();
+      		        clusterbtn.setText(" GROUPS ");
+      		        clusterbtn.setOnAction(new EventHandler<ActionEvent>() { 
+      		            @Override
+      		            public void handle(ActionEvent event) {
+      		             ArrayList<String> controlNames = new ArrayList<>();
+      		              for(int i=0;i<Files.size();i++){
+      		       	    	    Label label = new Label();
+      		       		        label.setFont(new Font("Arial", 9));
+      		       		        
+      		       		        label.setText(Files.get(i)+" Group ");
+      		       		        label.setLayoutX((i*100)+10);
+      		       		        label.setLayoutY(485);
+      		       		        
+      		       		        group.getChildren().add(label);
+      		       		        
+      		       		        Label mainDevelopers = new Label();
+      		       		        mainDevelopers.setFont(new Font("Arial", 9));
+      		       		        mainDevelopers.setText("Main Developers: ");
+      		       		        mainDevelopers.setLayoutX((i*100)+10);
+      		       		        mainDevelopers.setLayoutY(500);
+      		       		        group.getChildren().add(mainDevelopers);
+      		       		        
+      		       		        Label subDevelopers = new Label();
+      		       		        subDevelopers.setFont(new Font("Arial", 9));
+      		       		        subDevelopers.setText("Sub Developers: ");
+      		       		        subDevelopers.setLayoutX((i*100)+10);
+      		       		        subDevelopers.setLayoutY(590);
+      		       		        group.getChildren().add(subDevelopers);
+      		       		     
+      		       		        int value=0;
+      		       		        
+      		       	    	 
+      		       	    	   ListView listView2 = new ListView();
+      		       	    	   listView2.setPrefWidth(75);
+      		       	    	   listView2.setPrefHeight(75);
+      		       	    	   listView2.setLayoutX(((i)*100)+10);
+      		       	           listView2.setLayoutY(510);
+      		       	           group.getChildren().add(listView2);
+      		       	          
+      		       	           ListView listView3 = new ListView();
+      		       	           listView3.setPrefWidth(75);
+      	      	    	       listView3.setPrefHeight(75);
+      	      	    	       listView3.setLayoutX(((i)*100)+10);
+      	      	               listView3.setLayoutY(600);
+      	      	               group.getChildren().add(listView3);
+      		       	    	
+      		       	           for(int j=0;j<FilesMaxChange.size();j++){
+      		       	    		 
+      		       	    		  String[] filenames =FilesMaxChange.get(j).split(" ");
+      		       	    		  if(Files.get(i).equals(filenames[1])){
+      		       	    			  listView2.getItems().add(filenames[0]);  
+      		       	    			  value++;
+      		       	    			  controlNames.add(filenames[0]);
+      		       	    		  }
+      		       	    		 
+      		       	    		
+      		       	          }
+      		       	          for(int j=0;j<SubDevelopers.size();j++){
+      		       	    		 
+      		       	    		  String[] filenames =SubDevelopers.get(j).split(" ");
+      		       	    		  if(Files.get(i).equals(filenames[1]) && !controlNames.contains(filenames[0])){
+      		       	    			  listView3.getItems().add(filenames[0]);  
+      		       	    			  value++;
+      		       	    			  
+      		       	    	      }
+      		       	    		  
+      		       	    		int red = value * 50;
+      	   			            int green = 255 - (value * 30);
+      	   			         
+      	   					    label.setStyle("-fx-background-color: rgb(" + red + "," + green + ",0); -fx-border-color: black;");
+      		       	          } 
+      		       	          controlNames.clear();
+      		       	     
+      		            	  
+      		             }
+      		       	      
+      		       	    
+      		       	        	 
+      		       	        	 
+      		       	        	 
+      		       	        	
+      		              
+      		            }
+      		        
+      		        });
+      		
+      		        clusterbtn.setStyle("-fx-background-color: red ; -fx-border-color: black;");
+      		        clusterbtn.setLayoutX(10);
+      		        clusterbtn.setLayoutY(450);
+      	          
+      	           
+      	        
+      	                
       	                
       	            gridPane.setAlignment(Pos.CENTER);
       	            gridPane.setLayoutX(10);
@@ -668,13 +765,15 @@ public class PartnerDevelopers extends Application {
       	            listView.setLayoutY(50);
       	            //VBox vBox = new VBox(listView, gridPane);
       	            
-      	           
+      	          
       	            group.getChildren().add(gridPane);
       	            group.getChildren().add(label);
       	            group.getChildren().add(listView);
+      	            group.getChildren().add(clusterbtn);
+      	        
       	           
-      	            stage.setTitle(" Partner Developers Matrix ");
-      	            Scene scene = new Scene(group, 800, 600);
+      	            stage.setTitle(" Partner Developers Matrix and Groups");
+      	            Scene scene = new Scene(group, 800, 700);
       	            stage.setScene(scene);
       	            stage.show();
      	            }
@@ -691,9 +790,10 @@ public class PartnerDevelopers extends Application {
            	 }
            	
            }
+       
         //CLUSTER PART
         Button clusterbtn = new Button();
-	        clusterbtn.setText(" CLUSTER ");
+	        clusterbtn.setText(" GROUPS ");
 	        clusterbtn.setOnAction(new EventHandler<ActionEvent>() { 
 	            @Override
 	            public void handle(ActionEvent event) {
@@ -747,10 +847,7 @@ public class PartnerDevelopers extends Application {
 	       	    			  value++;
 	       	    			  controlNames.add(filenames[0]);
 	       	    		  }
-	       	    		int red = value * 50;
-   			            int green = 255 - (value * 30);
-   			         
-   					    label.setStyle("-fx-background-color: rgb(" + red + "," + green + ",0); -fx-border-color: black;");
+	       	    		 
 	       	    		
 	       	          }
 	       	          for(int j=0;j<SubDevelopers.size();j++){
@@ -758,8 +855,14 @@ public class PartnerDevelopers extends Application {
 	       	    		  String[] filenames =SubDevelopers.get(j).split(" ");
 	       	    		  if(Files.get(i).equals(filenames[1]) && !controlNames.contains(filenames[0])){
 	       	    			  listView3.getItems().add(filenames[0]);  
+	       	    			  value++;
 	       	    			  
 	       	    	      }
+	       	    		  
+	       	    		int red = value * 50;
+   			            int green = 255 - (value * 30);
+   			         
+   					    label.setStyle("-fx-background-color: rgb(" + red + "," + green + ",0); -fx-border-color: black;");
 	       	          } 
 	       	          controlNames.clear();
 	       	     
@@ -781,37 +884,37 @@ public class PartnerDevelopers extends Application {
 	        clusterbtn.setLayoutY(450);
           
            
-         
         
-        gridPane.setAlignment(Pos.CENTER);
-        gridPane.setLayoutX(10);
-        gridPane.setLayoutY(10);
+        
+           gridPane.setAlignment(Pos.CENTER);
+           gridPane.setLayoutX(10);
+           gridPane.setLayoutY(10);
         
        
-        Label label = new Label();
-        label.setFont(new Font("Arial", 16.5));
-        label.setStyle("-fx-background-color: #ADFF2F; -fx-border-color: black;");
-        label.setText("File Name - Count of Interchange");
-        label.setLayoutX(500);
-        label.setLayoutY(24);
+           Label label = new Label();
+           label.setFont(new Font("Arial", 16.5));
+           label.setStyle("-fx-background-color: #ADFF2F; -fx-border-color: black;");
+           label.setText("File Name - Count of Interchange");
+           label.setLayoutX(500);
+           label.setLayoutY(24);
        
        
-        listView.setLayoutX(500);
-        listView.setLayoutY(50);
-        //VBox vBox = new VBox(listView, gridPane);
+          listView.setLayoutX(500);
+          listView.setLayoutY(50);
+          //VBox vBox = new VBox(listView, gridPane);
       
+       
+        
+          group.getChildren().add(gridPane);
+          group.getChildren().add(label);
+          group.getChildren().add(listView);
+          group.getChildren().add(clusterbtn);
         
        
-        group.getChildren().add(gridPane);
-        group.getChildren().add(label);
-        group.getChildren().add(listView);
-        group.getChildren().add(clusterbtn);
-        
-       
-        stage.setTitle(" Partner Developers Matrix ");
-        Scene scene = new Scene(group, 800, 700);
-        stage.setScene(scene);
-        stage.show();
+          stage.setTitle(" Partner Developers Matrix and Groups ");
+          Scene scene = new Scene(group, 800, 700);
+          stage.setScene(scene);
+          stage.show();
     }
 	public static void main(String[] args) {  
 	    launch(args);  
